@@ -10,7 +10,7 @@ import {Preloader} from "./Preloader";
 export class League extends Component {
 
 	render() {
-		let tables, resetTableState, tablestate, handleNextButtonClick, handlePreviousButtonClick, matches, teams, scorers;
+		let tables, resetTableState, tablestate, handleNextButtonClick, competitions, handlePreviousButtonClick, matches, teams, scorers;
 		if (this.props.standings && this.props.standings !== undefined) {
 			tables = this.props.standings.standings;
 		}
@@ -35,10 +35,13 @@ export class League extends Component {
 		if (this.props.scorers && this.props.scorers !== undefined) {
 			scorers = this.props.scorers;
 		}
+		if (this.props.competitions && this.props.competitions !== undefined) {
+			competitions = this.props.competitions;
+		}
 
 		return <React.Fragment>
 			<div className="league-name">
-				<span className="league-title">{this.props.competitions && (this.props.competitions.find((obj) => obj.id === Number(this.props.match.params.id))).name}</span>
+				<span className="league-title">{(competitions && competitions[0]["name"] !== undefined) ? competitions.find((obj) => obj.id === Number(this.props.match.params.id)).name : this.props.match.params.name && this.props.match.params.name.replace(/-/g, ' ')}</span>
 			</div>
 			<br />
 			<div className="container">

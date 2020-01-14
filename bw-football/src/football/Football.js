@@ -16,7 +16,12 @@ export class Football extends Component {
 
 		let comp;
 		if (this.props.match.url.search("league") !== -1)  {
-			comp = <League {...this.props} />;
+			if (this.props.competitions && this.props.competitions[0].name !== undefined) {
+				comp = <League {...this.props} competitions={this.props.competitions} />;
+			}
+			else {
+				comp = <div className="center"><br /><br /><Preloader /></div>
+			}
 		}
 		else if (this.props.match.url.search("results") !== -1)  {
 			comp = <Results {...this.props} />;

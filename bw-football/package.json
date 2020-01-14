@@ -2,6 +2,10 @@
   "name": "bw-football",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "npm": "6.9.0",
+    "node": "10.16.3"
+  },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^5.6.1",
     "@testing-library/jest-dom": "^4.2.4",
@@ -9,15 +13,22 @@
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.19.1",
     "body-parser": "^1.19.0",
+    "materialize-css": "^1.0.0-rc.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "react-redux": "^7.1.3",
     "react-router-dom": "^5.1.2",
     "react-scripts": "3.3.0",
-    "redux": "^4.0.5"
+    "redux": "^4.0.5",
+    "chokidar": "^2.0.4",
+    "connect-history-api-fallback": "^1.5.0",
+    "cors": "^2.8.5",
+    "express": "^4.16.4",
+    "json-server": "^0.14.2",
+    "npm-run-all": "^4.1.3"
   },
   "scripts": {
-    "start": "npm-run-all --parallel reactstart webservice",
+    "start": "node server.js ./productionData.json 4000",
     "reactstart": "react-scripts start",
     "webservice": "node server.js",
     "build": "react-scripts build",
