@@ -168,6 +168,12 @@ export class Football extends Component {
 		</React.Fragment>
 	}
 
+	componentDidUpdate() {
+		let elemss = document.querySelectorAll('.sidenav');
+		let optionss = {edge: "right"};
+    	M.Sidenav.init(elemss, optionss);
+	}
+
 	componentDidMount() {
 		let elems = document.querySelectorAll('.sidenav');
 		let options = {edge: "right"};

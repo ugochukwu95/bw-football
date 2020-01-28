@@ -66,9 +66,15 @@ export class Tables extends Component {
 	}
 
 	componentDidMount() {
-		M.AutoInit();
+		let elems = document.querySelectorAll('select');
+		let options = {};
+    	M.FormSelect.init(elems, options);
 		if (this.props.loadCompetitionData && this.props.loadCompetitionData !== undefined) {
 			this.props.loadCompetitionData(DataTypes.STANDINGS, 2021);
 		}
+
+	    let elemss = document.querySelectorAll('.sidenav');
+		let optionss = {edge: "right"};
+    	M.Sidenav.init(elemss, optionss);
 	}
 }
