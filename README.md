@@ -32,6 +32,3 @@ Packages used:
 
 This project took 4 days to complete.
 
-The hardest part of the project was figuring out how to access the remote football API https://www.football-data.org/ from the client side without breaching Cross-origin resource sharing (CORS) Policy. Cross-origin resource sharing (CORS) is a mechanism that allows restricted resources on a web page to be requested from another domain outside the domain from which the first resource was served. The footbal api servers seem to (ironically) prevent other domains from accessing its api. Unfortunately, my first solution which was to use a proxy to access the API was denied. However, prefixing every requests to the api: https://www.football-data.org/api* with: https://cors-anywhere.herokuapp.com/ solved the problem.
-
-The functionality I am most proud of is the results page of the website: http://frozen-river-25069.herokuapp.com/results. It initially shows you all available matches today from the top 5 European leagues and provides the user with the avenue to select a date using the datepicker to provide games finished or upcoming for that selected date. The datepicker provided by Google's MaterializeCSS framework provides an "onSelect" callback function with the chosen date as an argument, which is used to get available matches for that selected date.
