@@ -1,35 +1,36 @@
 const express = require('express'); 
-const jsonServer = require("json-server");
-const chokidar = require("chokidar");
+const bodyParser = require('body-parser');
 const cors = require("cors");
 const port = process.env.PORT || 3500;
-const fileName = process.argv[2] || "./data.js";
 const history = require("connect-history-api-fallback");
 
-let router = undefined;
-
 const app = express();
-
-const createServer = () => {
-	delete require.cache[require.resolve(fileName)];
-	setTimeout(() => {
-		router = jsonServer.router(fileName.endsWith(".js") ? require(fileName)() : fileName);
-	}, 100)
-}
-
-createServer();
 
 app.use(history());
 app.use("/", express.static("./build"));
 app.use(cors());
-app.use(jsonServer.bodyParser)
-app.use("/api", (req, resp, next) => router(req, resp, next));
+app.use(bodyParser.urlencoded({extended:true}));
+app.use(bodyParser.json());
+app.set('trust proxy',true); 
 
-chokidar.watch(fileName).on("change", () => {
-	console.log("Reloading web service data...");
-	createServer();
-	console.log("Reloading web service data complete.");
+// Configuring the database
+const dbConfig = require('./config/database.config.js');
+const mongoose = require('mongoose');
+
+mongoose.Promise = global.Promise;
+
+// Connecting to the database
+mongoose.connect(dbConfig.url, {
+    useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true, useFindAndModify: false
+}).then(() => {
+    console.log("Successfully connected to the database");    
+}).catch(err => {
+    console.log('Could not connect to the database. Exiting now...', err);
+    process.exit();
 });
+
+// api routes
+require('./routes/news.routes.js')(app);
 
 app.listen(port, () => {
     console.log(`Server is listening on port ${port}`);

@@ -3,10 +3,91 @@ import {DataTypes} from "./Types";
 export const FootballReducer = (storeData, action) => {
 	switch (action.type) {
 		case ActionTypes.DATA_LOAD:
+			if (action.payload.data && !action.payload.data.error) {
+				let newData = ((storeData[action.payload.dataType] === undefined || storeData[action.payload.dataType] === null) ? [] : storeData[action.payload.dataType]['data']);
+				newData.push(...action.payload.data.data);
+				let store = {
+					...storeData,
+					[action.payload.dataType]: {data: newData, total: action.payload.data.total, page: action.payload.data.page, pages: action.payload.data.pages},
+				};
+				return store; 
+			}
+			else {
+				return {
+					...storeData,
+					[action.payload.dataType]: {error: action.payload.error}
+				}
+			}
+
+		case ActionTypes.SEARCH_RESULTS_LOAD:
+			if (action.payload.data && !action.payload.data.error) {
+				let newData = ((storeData[action.payload.dataType] === undefined || storeData[action.payload.dataType] === null) ? [] : storeData[action.payload.dataType]['data']);
+				newData.push(...action.payload.data.data);
+				let store = {
+					...storeData,
+					[action.payload.dataType]: {data: newData, total: action.payload.data.total, page: action.payload.data.page, pages: action.payload.data.pages},
+				};
+				return store; 
+			}
+			else {
+				return {
+					...storeData,
+					[action.payload.dataType]: {error: action.payload.data.error}
+				}
+			}
+
+		case ActionTypes.NEWS_DETAILS_LOAD:
 			return {
 				...storeData,
-				[action.payload.dataType]: action.payload.data
-			};
+				[action.payload.dataType]: action.payload.data	
+			}
+
+		case ActionTypes.NEWS_RELATED_LOAD:
+			return {
+				...storeData,
+				[action.payload.dataType]: action.payload.data	
+			}
+
+		case ActionTypes.CATEGORIES_LOAD:
+			return {
+				...storeData,
+				[action.payload.dataType]: action.payload.data	
+			}
+
+		case ActionTypes.NEWS_CATEGORY_LOAD:
+			if (action.payload.data && !action.payload.data.error) {
+				let newData = ((storeData[action.payload.dataType] === undefined || storeData[action.payload.dataType] === null) ? [] : storeData[action.payload.dataType]['data']);
+				newData.push(...action.payload.data.data);
+				let store = {
+					...storeData,
+					[action.payload.dataType]: {data: newData, total: action.payload.data.total, page: action.payload.data.page, pages: action.payload.data.pages},
+				};
+				return store; 
+			}
+			else {
+				return {
+					...storeData,
+					[action.payload.dataType]: {error: action.payload.error}
+				}
+			}
+
+		case ActionTypes.CLEAR_DATA:
+			return {
+				...storeData,
+				[action.payload.dataType]: null	
+			}
+
+		case ActionTypes.SORT_DATA_BY_DATE:
+			let dataToSort = storeData[action.payload.dataType]['data'];
+			let sortedData = dataToSort.sort(function(a,b){
+				  return new Date(b.pubDate) - new Date(a.pubDate);
+			});
+
+			return {
+				...storeData,
+				[action.payload.dataType]: {...storeData[action.payload.dataType], data: sortedData}	
+			}
+
 		case ActionTypes.COMP_DATA_LOAD:
 			return {
 				...storeData,

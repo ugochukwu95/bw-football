@@ -17,7 +17,7 @@ module.exports = function() {
 		news: [
 			{
 				id: 1, 
-				title: "Man Utd to consider drastic new January transfer window approach with several targets unavailable",
+				title: "PL given May 25 deadline by UEFA for 'restart proposals'",
 				image: "Ole.Gunnar.Solskjaer.Man_.Utd_.TEAMtalk.jpg",
 				display: 0,
 				datePosted: "01/13/2020" 

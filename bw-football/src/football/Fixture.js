@@ -1,123 +1,297 @@
 import React, {Component} from "react";
-import {DataTypes} from "../data/Types";
+import M from 'materialize-css';
+import { DataTypes } from "../data/Types";
+import {Preloader} from "./Preloader";
+import {Menu} from "./Menu";
+import {ResultsMenu} from "./ResultsMenu";
+import LeaguesData from "./LeaguesData";
 
 export class Fixture extends Component {
-	handleFixturePreviousButtonClick = (event) => {
-		event.preventDefault();
-		if (this.props.matches.matchDay === 1) {
-			return;
+	constructor(props) {
+		super(props);
+		this.state = {
+			status: "POSTPONED",
+			dateFrom: "",
+			dateTo: "",
+			selectDateText: "Select a date",
+		}
+	}
+
+	formatDate = date => {
+	    var d = new Date(date),
+	        month = '' + (d.getMonth() + 1),
+	        day = '' + d.getDate(),
+	        year = d.getFullYear();
+
+	    if (month.length < 2) 
+	        month = '0' + month;
+	    if (day.length < 2) 
+	        day = '0' + day;
+
+	    return [year, month, day].join('-');
+	}
+
+	handlePostponedSelect = ev => {
+		ev.preventDefault();
+		this.setState({status: "POSTPONED"}, () => this.handleTryAgain())
+	}
+
+	handleScheduledSelect = ev => {
+		ev.preventDefault();
+		this.setState({status: "SCHEDULED"}, () => this.handleTryAgain())
+	}
+
+	handleTryAgain = (ev = null) => {
+		if (ev) {
+			ev.preventDefault();
 		}
 
-		let matchDay = this.props.matches.matchDay - 1;
+		this.props.clearData && this.props.clearData(DataTypes.TEAMS);
+		this.props.clearData && this.props.clearData(DataTypes.MATCHES);
 
-		this.props.handleFixturePreviousButtonClick(DataTypes.MATCHES, matchDay);
+		(this.props.match && this.props.loadTeamsData) && this.props.loadTeamsData(DataTypes.TEAMS, this.props.match.params.league);
+		(this.props.match && this.props.loadMatchesData) && this.props.loadMatchesData(DataTypes.MATCHES, this.props.match.params.league, {status: this.state.status, dateFrom: this.state.dateFrom, dateTo: this.state.dateTo});
 	}
-	handleFixtureNextBtnClick = (event) => {
-		event.preventDefault();
 
-		let totalTeams = this.props.tables[0].table.length;
-		let totalMatchdays = Math.round((this.props.matches.matchesCount / totalTeams) * 2);
-
-		if (this.props.matches.matchDay === totalMatchdays) {
-			return;
-		}
-		let matchDay = this.props.matches.matchDay + 1;
-
-		this.props.handleFixturePreviousButtonClick(DataTypes.MATCHES, matchDay);
+	openDatePicker = (ev) => {
+		ev.preventDefault();
 	}
+
 	render() {
-		let matchesArray;
-		let matchDay, totalTeams, totalMatchdays;
-		if (this.props.matches) {
-			//console.log(this.props.matches);
-			totalTeams = this.props.tables[0].table.length;
-			totalMatchdays = Math.round((this.props.matches.matchesCount / totalTeams) * 2);
-			matchDay = this.props.matches.matchDay;
-			matchesArray = this.props.matches.matches.filter((obj) => matchDay === obj.matchday);
+		// handle page title
+		let title = "Premier League";
+		if (this.props.match && this.props.match.params.league && !this.props.match.params.clubId) {
+			title = LeaguesData.find(obj => obj.leagueCode === this.props.match.params.league).league;
 		}
-		return <div className="row">
-			<div className="col s12">
-				<br />
-				<h6 className="center grey-text text-darken-2"><strong>Matchday {matchDay} of {totalMatchdays}</strong></h6><br />
-				<div className="card white">
-					<div className="card-content grey-text text-darken-1 hide-on-med-and-down">
-						<table className="highlight fixture-table">
-							<tbody>
-								{matchesArray && matchesArray.map((obj) => {
-									let localDate = new Date(obj.utcDate);
-									let days = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
-									var months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+		else if (this.props.match && this.props.match.params.clubId) {
+			title = ((this.props.teams && !this.props.teams.error) && this.props.teams.teams.find(obj => obj.id === Number(this.props.match.params.clubId)).name) || <Preloader />;
+		}
 
-									let day = days[localDate.getDay()];
-									let month = months[localDate.getMonth()];
-									let vdate = localDate.getDate();
-									let hour = localDate.getHours();
-									let minute = localDate.getMinutes();
-									if (minute === 0) {
-										minute = "00";
-									}
+		// load results
+		let matches = (this.props.matches && !this.props.matches.error) && this.props.matches.matches;
 
-									return <tr key={obj.id}>
-										<td className={`truncate ${((obj.status === "FINISHED") && (obj.score.winner === "HOME_TEAM")) ? "winner_bold" : ""}`}>
-											{obj.homeTeam.name}
-										</td>
-										{(obj.status === "FINISHED") ? (<td colSpan="3" className="center center-column">{`${obj.score.fullTime.homeTeam} : ${obj.score.fullTime.awayTeam}`}</td>) : 
-											<td className="center center-column" colSpan="3">{`${day}, ${vdate}/${month} ${hour}:${minute}`}</td>}
-										<td className={`${((obj.status === "FINISHED") && (obj.score.winner === "AWAY_TEAM")) ? "winner_bold" : ""} truncate alnright`}>
-											{obj.awayTeam.name}
-										</td>
-									</tr>
-								})}
-							</tbody>
-						</table>
-					</div>
-				</div>
-				<div className="card white hide-on-large-only">
-					<div className="card-content grey-text text-darken-1">
-						<table className="highlight fixture-table">
-							<tbody>
-								{matchesArray && matchesArray.map((obj) => {
-									let localDate = new Date(obj.utcDate);
-									let days = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
-									var months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
+		if (matches && this.props.match && this.props.match.params.clubId) {
+			let clubId = Number(this.props.match.params.clubId);
+			matches = matches.filter(obj => obj.homeTeam.id === clubId || obj.awayTeam.id === clubId);
+		}
 
-									let day = days[localDate.getDay()];
-									let month = months[localDate.getMonth()];
-									let vdate = localDate.getDate();
-									let hour = localDate.getHours();
-									let minute = localDate.getMinutes();
-									if (minute === 0) {
-										minute = "00";
-									}
+		// sort matches by date descending
+		/*matches && matches.sort((a,b) => {
+			return new Date(b.utcDate) - new Date(a.utcDate);
+		})*/
 
-									return <tr key={obj.id}>
-										<td colSpan="2">
-											<span className={`truncate ${((obj.status === "FINISHED") && (obj.score.winner === "HOME_TEAM")) ? "winner_bold" : ""}`}>
-												{obj.homeTeam.name}
-												<span className="right">{((obj.status === "FINISHED") && (obj.score.winner === "HOME_TEAM")) ? <strong>{obj.score.fullTime.homeTeam}</strong> : <span>{obj.score.fullTime.homeTeam}</span>}</span></span><br />
-											<span className={`${((obj.status === "FINISHED") && (obj.score.winner === "AWAY_TEAM")) ? "winner_bold" : ""} truncate`}>
-												{obj.awayTeam.name} 
-												<span className="right">{((obj.status === "FINISHED") && (obj.score.winner === "AWAY_TEAM")) ? <strong>{obj.score.fullTime.awayTeam}</strong> : <span>{obj.score.fullTime.awayTeam}</span>}</span>
-											</span>
-										</td>
-										{(obj.status === "FINISHED") ? (<td className="center"><span className="center"><strong>FT</strong></span><br />{`${day}, ${vdate}/${month} ${hour}:${minute}`}</td>) : 
-											<td className="center">{`${day}, ${vdate}/${month} ${hour}:${minute}`}</td>}
-									</tr>
-								})}
-							</tbody>
-						</table>
-					</div>
-				</div>
-				<br />
-				<div className="row">
-					<div className="col s12">
-						<p className="right">
-							<a href="#!" className="btn waves-effect waves-light explore-btn grey-text text-darken-4" onClick={this.handleFixturePreviousButtonClick}><i className="material-icons left">chevron_left</i>PREV</a>&nbsp; 
-							<a href="#!" className="btn waves-effect waves-light explore-btn grey-text text-darken-4" onClick={this.handleFixtureNextBtnClick}><i className="material-icons left">chevron_right</i>NEXT</a>
-						</p>
-					</div>
+		let result = matches && matches.reduce((r, {id, utcDate}) => {
+			let dateObj = new Date(utcDate);
+			let monthyear = dateObj.toLocaleString("en-us", { month: "long", year: 'numeric' });
+    		let xo = [matches.find(item => item.id === id)];
+    		if(!r[monthyear]) r[monthyear] = {monthyear, xo, entries: 1}
+  			else {
+  				r[monthyear].entries++;
+    			r[monthyear].xo.push(matches.find(item => item.id === id));
+   			}
+  			return r;
+		}, {});
+
+		let ru = result && Object.values(result);
+
+		if (ru) {
+			for (let i=0; i<ru.length; i++) {
+				if (ru.hasOwnProperty(i)) {
+					ru[i]['xo'] = ru[i]['xo'].reduce((r, {id, utcDate}) => {
+						let dateObj = new Date(utcDate);
+						let dayMonth = dateObj.toLocaleString("en-GB", {day: 'numeric', weekday: 'long', month: 'long'});
+						let xxo = [matches.find(item => item.id === id)];
+						if(!r[dayMonth]) { 
+							r[dayMonth] = {dayMonth, xxo, entries: 1}
+						}
+						else {
+			  				r[dayMonth].entries++;
+			    			r[dayMonth].xxo.push(matches.find(item => item.id === id));
+			   			}
+			  			return r;
+					}, {});
+					ru[i]['xo'] = Object.values(ru[i]['xo']);
+				}
+			}
+		}
+
+		return <div className="white">
+			<div className="card-panel white z-depth-0 ugHeader">
+				<h5 className="grey-text text-darken-2">{title}</h5>
+			</div>
+			<Menu {...this.props} title="Fixtures" match={this.props.match} />
+			{
+				this.props.match && <ResultsMenu {...this.props} fixtures={true} handleTryAgain={this.handleTryAgain} lc={this.props.match.params.league} teams={this.props.teams} />
+			}
+
+			<div className="row">
+				<div className="col s12">
+					<ul className="fixturesMenuBtns">
+						<li>
+							<button onClick={this.handlePostponedSelect} className={`btn indigo darken-4 white-text ${(this.state.status === "POSTPONED") ? "disabled" : ""}`}>Postponed</button>
+						</li>
+						<li>
+							<button onClick={this.handleScheduledSelect} className={`btn indigo darken-4 white-text ${(this.state.status === "SCHEDULED") ? "disabled" : ""}`}>Sceduled</button>
+						</li>
+						<li className="right">
+							<button id="datepicker" className="btn datepicker white blue-text fixtueDatePicker z-depth-0">
+								{this.state.selectDateText}
+							</button>
+						</li>
+					</ul>
+					<p className="grey-text text-darken-2">Showing {this.state.status.toLowerCase()} matches for {this.state.selectDateText === "Select a date" ? "this month" : this.state.selectDateText}</p>
 				</div>
 			</div>
+
+			{
+				(ru && (this.props.teams && !this.props.teams.error)) && ru.map(item => <div key={item.monthyear}>
+					<h5 className="center monthYearTitle">{item.monthyear}</h5>
+					<br />
+					{
+						item.xo.map(obj => <React.Fragment key={obj.dayMonth}>
+							<div className="center dayMonthDiv indigo darken-4 white-text ugFrontContentCard">
+								{obj.dayMonth}
+							</div>
+							<table className="scoreTable">
+								<tbody>
+							{
+								obj.xxo.map(match => {
+									let matchDate = "";
+									if (this.state.status === "SHEDULED") {
+										let d = new Date(match.utcDate);
+										let m = d.getMinutes();
+  										let h = d.getHours(); 
+  										matchDate = h + ":" + m;
+									}
+									return <tr key={match.id}>
+										<td className="first">{((this.props.teams && !this.props.teams.error) && this.props.teams.teams.find(item => item.id === match.homeTeam.id).shortName) || match.homeTeam.name}</td>
+										<td className="middle">
+											<span className={(this.state.status === "POSTPONED" || this.state.status === "SCHEDULED") ? "hide" : "show"}>
+												{match.score.fullTime.homeTeam} - {match.score.fullTime.awayTeam}
+											</span>
+											<span className={this.state.status === "POSTPONED" ? "show" : "hide"}>
+												p - p
+											</span>
+											<span className={`white grey-text text-darken-2 ${this.state.status === "SHEDULED" ? "show" : "hide"}`}>
+												{matchDate}
+											</span>
+										</td>
+										<td className="last">{((this.props.teams && !this.props.teams.error) && this.props.teams.teams.find(item => item.id === match.awayTeam.id).shortName) || match.awayTeam.name}</td>
+									</tr>
+								})
+							}
+								</tbody>
+							</table>
+							<br />
+						</React.Fragment>)
+					}
+					<br /><br />
+				</div>)
+			}
+
+			{
+				(!ru && !this.props.matches) && <div className="center">
+					<br /><br />
+					<Preloader />
+					<br /><br />
+					<br /><br />
+				</div>
+			}
+
+			{
+				(this.props.matches && this.props.matches.error) && <div className="row">
+					<div className="col s12 container">
+					<br />
+					<div className="card-panel center white-text">
+						<h3 className="grey-text text-darken-2">:(</h3>
+							<p className="grey-text text-darken-2">{this.props.matches.error}</p>
+							<button onClick={this.handleTryAgain} className="btn btn-flat textTransform white-text indigo darken-4">Try again</button>
+					</div>
+					</div>
+				</div>
+			}
+
+			{
+				(this.props.matches && !this.props.matches.error && this.props.matches.matches.length === 0) && <div className="row">
+					<div className="col s12 container">
+					<br />
+					<div className="card-panel center white-text">
+						<h3 className="grey-text text-darken-2">:(</h3>
+							<p className="grey-text text-darken-2">No {this.state.status.toLowerCase()} matches</p>
+					</div>
+					</div>
+				</div>
+			}
 		</div>
+	}
+
+	componentDidMount() {
+		const that = this;
+
+		// get first and last date of month
+		let date = new Date();
+		let firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+		let lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+		this.setState({dateFrom: this.formatDate(firstDay), dateTo: this.formatDate(lastDay)}, () => {
+			this.props.clearData && this.props.clearData(DataTypes.TEAMS);
+			this.props.clearData && this.props.clearData(DataTypes.MATCHES);
+
+			(this.props.match && this.props.loadTeamsData) && this.props.loadTeamsData(DataTypes.TEAMS, this.props.match.params.league);
+			(this.props.match && this.props.loadMatchesData) && this.props.loadMatchesData(DataTypes.MATCHES, this.props.match.params.league, {status: this.state.status, dateFrom: this.state.dateFrom, dateTo: this.state.dateTo});
+		});
+
+		// initialize datepicker
+		let elems = document.querySelectorAll('.datepicker');
+		let options = {
+			autoClose: true,
+			onSelect: () => {
+				let instance = M.Datepicker.getInstance(document.getElementById("datepicker"));
+				let selectedText = instance.toString();
+
+				// get date for selected date
+				that.setState({status: "SCHEDULED", dateFrom: that.formatDate(selectedText), dateTo: that.formatDate(selectedText), selectDateText: selectedText}, () => {
+					// clear current matches data
+					that.props.clearData && that.props.clearData(DataTypes.MATCHES);
+
+					// Load new matches data
+					(that.props.match && that.props.loadMatchesData) && that.props.loadMatchesData(DataTypes.MATCHES, that.props.match.params.league, {status: that.state.status, dateFrom: that.state.dateFrom, dateTo: that.state.dateTo});
+				})
+
+			},
+		};
+    	M.Datepicker.init(elems, options);
+	}
+
+	componentDidUpdate(prevProps) {
+		if (prevProps.match.params.league !== this.props.match.params.league) {
+			// get first and last date of month
+			let date = new Date();
+			let firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+			let lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+			this.setState({dateFrom: this.formatDate(firstDay), dateTo: this.formatDate(lastDay)}, () => {
+				this.props.clearData && this.props.clearData(DataTypes.TEAMS);
+				this.props.clearData && this.props.clearData(DataTypes.MATCHES);
+
+				(this.props.match && this.props.loadTeamsData) && this.props.loadTeamsData(DataTypes.TEAMS, this.props.match.params.league);
+				(this.props.match && this.props.loadMatchesData) && this.props.loadMatchesData(DataTypes.MATCHES, this.props.match.params.league, {status: this.state.status, dateFrom: this.state.dateFrom, dateTo: this.state.dateTo});
+			});
+		}
+
+		if (prevProps.match.url !== this.props.match.url) {
+			// get first and last date of month
+			let date = new Date();
+			let firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+			let lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+
+			this.setState({dateFrom: this.formatDate(firstDay), dateTo: this.formatDate(lastDay)}, () => {
+				this.props.clearData && this.props.clearData(DataTypes.TEAMS);
+				this.props.clearData && this.props.clearData(DataTypes.MATCHES);
+
+				(this.props.match && this.props.loadTeamsData) && this.props.loadTeamsData(DataTypes.TEAMS, this.props.match.params.league);
+				(this.props.match && this.props.loadMatchesData) && this.props.loadMatchesData(DataTypes.MATCHES, this.props.match.params.league, {status: this.state.status, dateFrom: this.state.dateFrom, dateTo: this.state.dateTo});
+			});
+		}
 	}
 }

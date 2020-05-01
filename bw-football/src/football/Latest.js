@@ -1,123 +1,51 @@
 import React, {Component} from "react";
-import {Link} from "react-router-dom";
-import ReactTimeAgo from 'react-time-ago';
-import {cleanUrlText} from "./cleanUrlText";
-import { DataTypes } from "../data/Types";
 import {Preloader} from "./Preloader";
+import ReactTimeAgo from 'react-time-ago';
+import {Link} from "react-router-dom";
+import { DataTypes } from "../data/Types";
+import {cleanUrlText} from "./cleanUrlText";
 import {Menu} from "./Menu";
 
-const Entities = require('html-entities').XmlEntities;
- 
-const entities = new Entities();
+export class Latest extends Component {
+	constructor(props) {
+		super(props);
+		this.state = {
+			loading: false,
+			page: 1,
+			pages: null
+		}
+	}
 
-export class FrontPage extends Component {
+	handleOnScroll = (event) => {
+		let scrollTop = (document.documentElement && document.documentElement.scrollTop) || document.body.scrollTop;
+  		let scrollHeight = (document.documentElement && document.documentElement.scrollHeight) || document.body.scrollHeight;
+ 		let clientHeight = document.documentElement.clientHeight || window.innerHeight;
+  		let scrolledToBottom = Math.ceil(scrollTop + clientHeight) >= (scrollHeight - 300);
+
+  		if (scrolledToBottom) {
+  			if (Number(this.state.page) === Number(this.state.pages)) {
+  				this.setState({loading: false});
+  				return;
+  			}
+
+  			this.setState({loading: true, page: Number(this.state.page) + 1}, () => this.props.loadData(DataTypes.NEWS, {page: Number(this.state.page)}));
+  		}
+	}
 
 	render() {
-		let mainNews = this.props.news && this.props.news.data[0];
-		let secondNews = this.props.news && this.props.news.data[1];
-		let thirdNews = this.props.news && this.props.news.data[2];
-		let fourthNews = this.props.news && this.props.news.data[3];
-		let fifthNews = this.props.news && this.props.news.data[4];
-		let theRest = this.props.news && this.props.news.data.filter((obj, index) => (index > 4 && index < 10));
-
 		return <React.Fragment>
 			{
-				(this.props.news && !this.props.news.data.error) && <React.Fragment>
+				this.props.news && <React.Fragment>
 					<div className="card-panel white z-depth-0 ugHeader">
 						<h5 className="grey-text text-darken-2">Football</h5>
 					</div>
-					<Menu {...this.props} title="Home" />
-					<div className="white ugMainDiv">
-						<div className="card white z-depth-0 ugFrontMainCard">
-							<div className="card-image">
-								<Link className="black-text text-darken-4" to={`/news/${cleanUrlText(mainNews.title)}/${mainNews._id}`}>
-									<img className="responsive-img" src={mainNews.thumbnail} alt={mainNews.title} />
-								</Link>
-							</div>
-							<div className="card-content white ugFrontContentCard">
-								<p className="ugCardTitle black-text text-darken-4">
-									<strong>
-										<Link className="black-text text-darken-4" to={`/news/${cleanUrlText(mainNews.title)}/${mainNews._id}`}>
-											{mainNews.title}
-										</Link>
-									</strong>
-								</p>
-								<br />
-								<p className="">
-									<Link className="grey-text text-darken-2" to={`/news/${cleanUrlText(mainNews.title)}/${mainNews._id}`}>
-										{entities.decode(mainNews.description.substring(0, 250) + "...")}
-									</Link>
-								</p>
-								<br />
-								<table>
-									<tbody>
-										<tr>
-											<td className="grey-text text-darken-2">></td>
-											<td>
-												<Link className="grey-text text-darken-2" to={`/news/${cleanUrlText(secondNews.title)}/${secondNews._id}`}>
-													{secondNews.title}
-												</Link>
-											</td>
-										</tr>
-										<tr>
-											<td className="grey-text text-darken-2">></td>
-											<td>
-												<Link className="grey-text text-darken-2" to={`/news/${cleanUrlText(thirdNews.title)}/${thirdNews._id}`}>
-													{thirdNews.title}
-												</Link>
-											</td>
-										</tr>
-									</tbody>
-								</table>
-							</div>
-						</div>
-						<div className="row">
-							<div className="col s6">
-								<div className="card white z-depth-0 ugFeaturedCard">
-									<div className="card-image">
-										<Link to={`/news/${cleanUrlText(fourthNews.title)}/${fourthNews._id}`}>
-											<img className="responsive-img" src={fourthNews.thumbnail} alt={fourthNews.title} />
-										</Link>
-									</div>
-									<div className="card-content">
-										<span><ReactTimeAgo date={Date.parse(fourthNews.pubDate)}/></span>
-										<h5>
-											<Link className="black-text" to={`/news/${cleanUrlText(fourthNews.title)}/${fourthNews._id}`}>
-												{fourthNews.title}
-											</Link>
-										</h5>
-									</div>
-								</div>
-							</div>
-							<div className="col s6">
-								<div className="card white z-depth-0 ugFeaturedCard">
-									<div className="card-image">
-										<Link to={`/news/${cleanUrlText(fifthNews.title)}/${fifthNews._id}`}>
-											<img className="responsive-img" src={fifthNews.thumbnail} alt={fifthNews.title} />
-										</Link>
-									</div>
-									<div className="card-content">
-										<span><ReactTimeAgo date={Date.parse(fifthNews.pubDate)}/></span>
-										<h5>
-											<Link className="black-text" to={`/news/${cleanUrlText(fifthNews.title)}/${fifthNews._id}`}>
-												{fifthNews.title}
-											</Link>
-										</h5>
-									</div>
-								</div>
-							</div>
-						</div>
-						<br />
-						<Link to="/latest" className="white-text">
-							<div className="card-content indigo darken-4 ugFrontContentCard">
-								<span className="white-text">Latest</span> <span className="right white-text"> <i className="fas fa-angle-right"></i></span>
-							</div>
-						</Link>
+					<Menu {...this.props} title="Latest" match={this.props.match} />
+					<div className="white">
 						<br />
 						<table className="ugLatestTable">
 							<tbody>
 								{
-									theRest.map(obj => <tr key={obj._id}>
+									this.props.news.data.map(obj => <tr key={obj._id}>
 										<td className="ugLatestImageRow">
 											<Link to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
 												<img className="lazy responsive-img" src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" data-src={obj.thumbnail} data-srcset={`${obj.thumbnail || `/unavailable-image.jpg`} 1x`} alt={obj.title} />
@@ -140,7 +68,15 @@ export class FrontPage extends Component {
 			}
 
 			{
-				!this.props.news && <div className="center">
+				(!this.props.news) && <div className="center">
+					<br /><br />
+					<Preloader />
+					<br /><br />
+				</div>
+			}
+
+			{
+				(this.state.loading) && <div className="center">
 					<br /><br />
 					<Preloader />
 					<br /><br />
@@ -151,6 +87,8 @@ export class FrontPage extends Component {
 
 	componentDidMount() {
 		(!this.props.news && this.props.loadData) && this.props.loadData(DataTypes.NEWS);
+		
+		(this.props.news && !this.props.news.data.error) && this.setState({page: Number(this.props.news.page), pages: Number(this.props.news.pages)});
 
 		var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
 
@@ -207,9 +145,19 @@ export class FrontPage extends Component {
 			  window.addEventListener("resize", lazyLoad);
 			  window.addEventListener("orientationchange", lazyLoad);
 		  }
+
+		// Create scroll event
+		window.addEventListener('scroll', this.handleOnScroll);
+
+		// Scroll to top 
+        document.body.scrollIntoView({behavior: 'smooth', block: 'start'});
 	}
 
-	componentDidUpdate() {
+	componentDidUpdate(prevProps) {
+		if (prevProps.news !== this.props.news) {
+			(this.props.news && !this.props.news.data.error) && this.setState({page: Number(this.props.news.page), pages: Number(this.props.news.pages)});
+		}
+
 		var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
 
 		  if ("IntersectionObserver" in window) {
@@ -265,5 +213,7 @@ export class FrontPage extends Component {
 			  window.addEventListener("resize", lazyLoad);
 			  window.addEventListener("orientationchange", lazyLoad);
 		  }
+		// Create scroll event
+		window.addEventListener('scroll', this.handleOnScroll);
 	}
 }

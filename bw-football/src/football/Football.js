@@ -1,182 +1,314 @@
 import React, {Component} from "react";
-import {CategoryNavigation} from "./CategoryNavigation";
 import {Link} from "react-router-dom";
 import {FrontPage} from "./FrontPage";
 import { League } from "./League";
 import { Results } from "./Results";
 import { Tables } from "./Tables";
+import { Fixture } from "./Fixture";
 import {News} from "./News";
-import {Preloader} from "./Preloader";
 import M from 'materialize-css';
+import {Latest} from "./Latest";
+import {Category} from "./Category";
+import {Preloader} from "./Preloader";
+import { DataTypes } from "../data/Types";
+import ReactTimeAgo from 'react-time-ago';
+import {cleanUrlText} from "./cleanUrlText";
 
 export class Football extends Component {
-	render() {
-		let today = new Date();
-		let yyyy = today.getFullYear();
-
-		let comp;
-		if (this.props.match.url.search("league") !== -1)  {
-			if (this.props.competitions && this.props.competitions[0].name !== undefined) {
-				comp = <League {...this.props} competitions={this.props.competitions} />;
-			}
-			else {
-				comp = <div className="center"><br /><br /><Preloader /></div>
-			}
+	constructor(props) {
+		super(props);
+		this.state = {
+			searchField: "",
+			loading: false,
+			page: 1,
+			pages: 1,
+			sortByDate: false
 		}
-		else if (this.props.match.url.search("results") !== -1)  {
+	}
+
+	handleSearch = ev => {
+		this.setState({[ev.target.name]: ev.target.value, loading: true, page: 1, pages: 1}, () => {
+			this.props.clearData && this.props.clearData(DataTypes.SEARCH_RESULTS);
+			(this.props.loadSearchResults) && this.props.loadSearchResults(DataTypes.SEARCH_RESULTS, {searchString: this.state.searchField, page: Number(this.state.page)})
+		});
+	}
+
+	openReviews = (ev) => {
+		ev.preventDefault();
+		document.getElementById("myProductReviewsNav").style.width = "100%";
+		document.body.style.overflow = "hidden";
+	}
+
+	closeNav = (ev) => {
+		ev.preventDefault();
+		this.setState({loading: false});
+		document.body.style.overflow = "auto";
+		document.getElementById("myProductReviewsNav").style.width = "0";
+	}
+
+	closeAndNavigate = (item, id) => ev => {
+		this.closeNav(ev);
+		this.props.history && this.props.history.push(`/news/${item}/${id}`)
+	}
+
+	handleSortByDate = ev => {
+		ev.preventDefault();
+		this.setState({sortByDate: !this.state.sortByDate}, () => {
+			if (this.state.sortByDate) {
+				this.props.sortDataByDate && this.props.sortDataByDate(DataTypes.SEARCH_RESULTS);
+			}
+		});
+	}
+
+
+	render() {
+		let comp;
+		if (this.props.match.path === "/league/:name/:id")  {
+			comp = <League {...this.props} />;
+		}
+		else if (this.props.match.path === "/results/:league?/:clubId?")  {
 			comp = <Results {...this.props} />;
 		}
-		else if (this.props.match.url.search("tables") !== -1)  {
-			if (this.props.competitions !== undefined) {
-				comp = <Tables {...this.props} competitions={this.props.competitions} />;
-			}
+		else if (this.props.match.path === "/tables/:league?")  {
+			comp = <Tables {...this.props} />;
 		}
-		else if (this.props.match.url.search("news") !== -1)  {
-			if (this.props.news !== undefined) {
-				comp = <News {...this.props} news={this.props.news} />;
-			}
-			else {
-				comp = <div className="center"><br /><br /><Preloader /></div>
-			}
+		else if (this.props.match.path === "/news/:title/:newsId")  {
+			comp = <News {...this.props} />;
 		}
-		else if (this.props.match.url === '/') {
-			if (this.props.news !== undefined) {
-				comp = <FrontPage news={this.props.news} />;
-			}
-			else {
-				comp = <div className="center"><br /><br /><Preloader /></div>
-			}
+		else if (this.props.match.path ===  "/latest") {
+			comp = <Latest {...this.props} />;
+		}
+		else if (this.props.match.path ===  "/category/:title") {
+			comp = <Category {...this.props} />;
+		}
+		else if (this.props.match.path === "/") {
+			comp = <FrontPage {...this.props} />;
+		}
+		else if (this.props.match.path === "/fixtures/:league?/:clubId?") {
+			comp = <Fixture {...this.props} />
 		}
 
 		return <React.Fragment>
 			<header>
-				<nav className="top-nav-color top-nav z-depth-0 white-text hide-on-med-and-down">
-					<div className="nav-wrapper container">
-						<ul className="left hide-on-med-and-down">
-                            <li><a href="#!"><i className="fab fa-facebook-f"></i></a></li>
-                            <li><a href="#!"><i className="fab fa-twitter"></i></a></li>
-                            <li><a href="#!"><i className="fab fa-instagram"></i></a></li>
-                            <li><a href="#!"><i className="fab fa-youtube"></i></a></li>
-                            <li><a href="#!">Contact Us</a></li>
-                            <li><a href="#!">Donations</a></li>
-                        </ul>
-                        <ul className="right hide-on-med-and-down">
-                            <li><a href="#!" className="white-text">
-                            	Currency <span className="top-gold-color">USD</span></a>
-                            </li>
-                            <li><a href="#!" className="white-text"><span className="top-gold-color">
-                            	Sign Up</span> or Login</a>
-                            </li>
-                        </ul>
-					</div>
-				</nav>
-				<nav className="grey-text text-darken-1 white z-depth-1 middle-nav">
-					<div className="nav-wrapper container">
-						<Link to="/" className="left grey-text text-darken-1 cover-img">
-							<img className="cover" src={require(`../images/images/logo.png`)} alt="BW Footbal club logo" />
-						</Link>
-						<ul className="left grey-text text-darken-1">
-							<li><Link to="/" className="grey-text text-darken-1">BW FOOTBALL CLUB</Link></li>
-						</ul>
-						<ul className="right grey-text text-darken-1 hide-on-large-only">
-							<li><a href="#!" data-target="slide-out" className="sidenav-trigger grey-text text-darken-1 logo-text"><i className="material-icons">menu</i></a></li>
-						</ul>
-						<ul className="right hide-on-med-and-down grey-text text-darken-1">
-          					<li><Link to="/" className="grey-text text-darken-1">HOME</Link></li>
-          					<li><Link to="/results" className="grey-text text-darken-1">RESULTS</Link></li>
-          					<li><Link to="/tables" className="grey-text text-darken-1">TABLES</Link></li>
-          					<li><Link to="#!" className="grey-text text-darken-1">TIPS</Link></li>
-          					<li><Link to="#!" className="grey-text text-darken-1">FEATURES</Link></li>
-          					<li><Link to="#!" className="grey-text text-darken-1">ABOUT</Link></li>
-        				</ul>
-					</div>
-				</nav>
-				<CategoryNavigation {...this.props} />
+				<div className="navbar-fixed">
+					<nav className="white-text red darken-1">
+						<div className="nav-wrapper">
+							<ul className="left white-text">
+								<li><Link to="/" className="white-text logoFont ugPageName">BWSPORTS</Link></li>
+							</ul>
+							<ul className="right white-text">
+								<li><a href="#!" onClick={this.openReviews} className="white-text"><i className="fas fa-search"></i></a></li>
+							</ul>
+						</div>
+					</nav>
+				</div>
+				{/*<CategoryNavigation {...this.props} />*/}
 			</header>
 			<main>
 				{comp}
-				<ul id="slide-out" className="sidenav">
-				    <li><Link to="/" className="grey-text text-darken-1 sidenav-close">HOME</Link></li>
-					<li><Link to="/results" className="grey-text text-darken-1 sidenav-close">RESULTS</Link></li>
-					<li><Link to="/tables" className="grey-text text-darken-1 sidenav-close">TABLES</Link></li>
-				</ul>
-			</main>
-			<footer className="page-footer">
-				<div className="container">
+
+
+				<div id="myProductReviewsNav" className="myProductDetailsNav white">
 					<div className="row">
 						<div className="col s12">
-							<p className="white-text"><span className="footer-headline">Never miss the action from your winning team</span>
-							<span className="right hide-on-med-and-down"><a href="#!" className="btn waves-effect waves-light explore-btn grey-text text-darken-4">Explore More <i className="material-icons right">chevron_right</i></a></span></p>
-							<p className="hide-on-large-only"><span className=""><a href="#!" className="btn waves-effect waves-light explore-btn grey-text text-darken-4">Explore More <i className="material-icons right">chevron_right</i></a></span></p>
-						</div>
-					</div>
-				</div>
-				<div className="more-links">
-				<br />
-				<div className="row container">
-					<div className="col l2 s6">
-						<h6 className="white-text">ABOUT US</h6>
-		                <ul>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Latest News</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Players Room</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Media Gallery</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Feedback</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Contact Us</a></li>
-		                </ul>
-					</div>
-					<div className="col l2 s6">
-						<h6 className="white-text">INFORMATION</h6>
-		                <ul>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Olympics</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">FIFA 2019</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">NFL 2019</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">NBA 2019</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Boxing</a></li>
-		                </ul>
-					</div>
-					<div className="col l2 s6">
-						<h6 className="white-text">SUPPORT</h6>
-		                <ul>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Terms and Conditions</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Privacy Policy</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Sitemap</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">FAQ</a></li>
-		                  <li><a className="grey-text text-lighten-3" href="#!">Account</a></li>
-		                </ul>
-					</div>
-					<div className="col l6 s12">
-						<div className="right-pic">
-							<img className="cover" src={require(`../images/images/logo.png`)} alt="BW Footbal club logo" /> 
-							<span className="footer-web-name">BW FOOTBALL CLUB</span>
-						</div>
-					</div>
-				</div>
-				<div className="footer-copyright">
-           			<div className="container">
-            			<strong>© All rights reserved {yyyy}</strong>
-            			<a className="grey-text text-darken-4 right hide-on-med-and-down" href="#!"><strong>Follow us: &nbsp; </strong> 
-            				<i className="fab fa-facebook-f"></i>&nbsp; &nbsp;<i className="fab fa-youtube"></i>&nbsp; 
-            				&nbsp;<i className="fab fa-twitter"></i>&nbsp; &nbsp;<i className="fab fa-instagram"></i></a>
+							<p>
+								<a href="#!" className="closebtn sec-color right" onClick={this.closeNav}>Back</a>
+							</p>
+							<input type="text" name="searchField" className="browser-default searchField" value={this.state.searchField} onChange={this.handleSearch} placeholder="Search news articles, headlines and more ..." />
+							
+							{
+								(this.props.search_results && this.props.search_results.data && !this.props.search_results.data.error) && <React.Fragment>
+									<div className="white">
+										{
+											(this.props.search_results.data.length > 1) && <p>
+												<button onClick={this.handleSortByDate} className={`btn sortBtn ${(this.state.sortByDate) ? "disabled" : "indigo darken-4 white-text"}`}>Sort by date</button>
+											</p>
+										}
+										<br />
+										<table className="ugLatestTable">
+											<tbody>
+												{
+													this.props.search_results.data.map(obj => <tr key={obj._id}>
+														<td className="ugLatestImageRow">
+															<Link onClick={this.closeAndNavigate(cleanUrlText(obj.title), obj._id)} to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
+																<img className="lazy responsive-img" src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" data-src={obj.thumbnail} data-srcset={`${obj.thumbnail || `/unavailable-image.jpg`} 1x`} alt={obj.title} />
+															</Link>
+														</td>
+														<td>
+															<span className="grey-text text-darken-2"><ReactTimeAgo date={Date.parse(obj.pubDate)}/></span>
+															<br />
+															<Link onClick={this.closeAndNavigate(cleanUrlText(obj.title), obj._id)} className="grey-text text-darken-2" to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
+																<strong>{obj.title}</strong>
+															</Link>
+														</td>
+													</tr>)
+												}
+											</tbody>
+										</table>
+										<br />
+									</div>
+								</React.Fragment>
+							}
 
-            			<a className="white-text hide-on-large-only" href="#!"><br /><br /><strong>Follow us: &nbsp; </strong> 
-            				<i className="fab fa-facebook-f"></i>&nbsp; &nbsp;<i className="fab fa-youtube"></i>&nbsp; 
-            				&nbsp;<i className="fab fa-twitter"></i>&nbsp; &nbsp;<i className="fab fa-instagram"></i></a>
-            		</div>
-          		</div>
-          		</div>
+							{
+								(this.state.loading && !this.props.search_results) && <React.Fragment>
+									<div className="center">
+										<br /><br />
+										<Preloader />
+										<br /><br />
+									</div>
+								</React.Fragment>
+							}
+
+							{
+								(this.props.search_results && !this.props.search_results.error && this.props.search_results.data.length === 0) && <div className="row">
+									<div className="col s12 container">
+									<br />
+									<div className="card-panel center white-text">
+										<h3 className="grey-text text-darken-2">:(</h3>
+											<p className="grey-text text-darken-2">No search results.</p>
+									</div>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+				</div>
+
+				<br /><br />
+			</main>
+			<footer>
+				<a href="https://ugooguejiofor.herokuapp.com/" rel="noopener noreferrer" target="_blank" className="white-text">
+					<div className="card-content indigo darken-4 ugFrontContentCard">
+						<span className="white-text">Built by Ugo</span> <span className="right white-text"> Find me &nbsp; <i className="fas fa-angle-right"></i></span>
+					</div>
+				</a>
 			</footer>
 		</React.Fragment>
-	}
-
-	componentDidUpdate() {
-		let elemss = document.querySelectorAll('.sidenav');
-		let optionss = {edge: "right"};
-    	M.Sidenav.init(elemss, optionss);
 	}
 
 	componentDidMount() {
 		let elems = document.querySelectorAll('.sidenav');
 		let options = {edge: "right"};
     	M.Sidenav.init(elems, options);
+
+    	var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+
+		  if ("IntersectionObserver" in window) {
+		    let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+		      entries.forEach(function(entry) {
+		        if (entry.isIntersecting) {
+		          let lazyImage = entry.target;
+		          lazyImage.src = lazyImage.dataset.src;
+		          lazyImage.srcset = lazyImage.dataset.srcset;
+		          lazyImage.classList.remove("lazy");
+		          lazyImageObserver.unobserve(lazyImage);
+		        }
+		      });
+		    });
+
+		    lazyImages.forEach(function(lazyImage) {
+		      lazyImageObserver.observe(lazyImage);
+		    });
+		  } else {
+		    // Possibly fall back to a more compatible method here
+		    let lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+			  let active = false;
+
+			  const lazyLoad = function() {
+			    if (active === false) {
+			      active = true;
+
+			      setTimeout(function() {
+			        lazyImages.forEach(function(lazyImage) {
+			          if ((lazyImage.getBoundingClientRect().top <= window.innerHeight && lazyImage.getBoundingClientRect().bottom >= 0) && getComputedStyle(lazyImage).display !== "none") {
+			            lazyImage.src = lazyImage.dataset.src;
+			            lazyImage.srcset = lazyImage.dataset.srcset;
+			            lazyImage.classList.remove("lazy");
+
+			            lazyImages = lazyImages.filter(function(image) {
+			              return image !== lazyImage;
+			            });
+
+			            if (lazyImages.length === 0) {
+			              document.removeEventListener("scroll", lazyLoad);
+			              window.removeEventListener("resize", lazyLoad);
+			              window.removeEventListener("orientationchange", lazyLoad);
+			            }
+			          }
+			        });
+
+			        active = false;
+			      }, 200);
+			    }
+			  };
+
+			  document.addEventListener("scroll", lazyLoad);
+			  window.addEventListener("resize", lazyLoad);
+			  window.addEventListener("orientationchange", lazyLoad);
+		  }
+
+	}
+
+	componentDidUpdate(prevProps) {
+		let elemss = document.querySelectorAll('.sidenav');
+		let optionss = {edge: "right"};
+    	M.Sidenav.init(elemss, optionss);
+
+    	var lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+
+		  if ("IntersectionObserver" in window) {
+		    let lazyImageObserver = new IntersectionObserver(function(entries, observer) {
+		      entries.forEach(function(entry) {
+		        if (entry.isIntersecting) {
+		          let lazyImage = entry.target;
+		          lazyImage.src = lazyImage.dataset.src;
+		          lazyImage.srcset = lazyImage.dataset.srcset;
+		          lazyImage.classList.remove("lazy");
+		          lazyImageObserver.unobserve(lazyImage);
+		        }
+		      });
+		    });
+
+		    lazyImages.forEach(function(lazyImage) {
+		      lazyImageObserver.observe(lazyImage);
+		    });
+		  } else {
+		    // Possibly fall back to a more compatible method here
+		    let lazyImages = [].slice.call(document.querySelectorAll("img.lazy"));
+			  let active = false;
+
+			  const lazyLoad = function() {
+			    if (active === false) {
+			      active = true;
+
+			      setTimeout(function() {
+			        lazyImages.forEach(function(lazyImage) {
+			          if ((lazyImage.getBoundingClientRect().top <= window.innerHeight && lazyImage.getBoundingClientRect().bottom >= 0) && getComputedStyle(lazyImage).display !== "none") {
+			            lazyImage.src = lazyImage.dataset.src;
+			            lazyImage.srcset = lazyImage.dataset.srcset;
+			            lazyImage.classList.remove("lazy");
+
+			            lazyImages = lazyImages.filter(function(image) {
+			              return image !== lazyImage;
+			            });
+
+			            if (lazyImages.length === 0) {
+			              document.removeEventListener("scroll", lazyLoad);
+			              window.removeEventListener("resize", lazyLoad);
+			              window.removeEventListener("orientationchange", lazyLoad);
+			            }
+			          }
+			        });
+
+			        active = false;
+			      }, 200);
+			    }
+			  };
+
+			  document.addEventListener("scroll", lazyLoad);
+			  window.addEventListener("resize", lazyLoad);
+			  window.addEventListener("orientationchange", lazyLoad);
+		  }
 	}
 }

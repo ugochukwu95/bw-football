@@ -1,91 +1,170 @@
 import React, {Component} from "react";
-import M from 'materialize-css';
+// import M from 'materialize-css';
 import { DataTypes } from "../data/Types";
-import {ResultsCard} from "./ResultsCard";
 import {Preloader} from "./Preloader";
-import {MessagePanel} from "./MessagePanel";
+import {Menu} from "./Menu";
+import {ResultsMenu} from "./ResultsMenu";
+import LeaguesData from "./LeaguesData";
 
 export class Results extends Component {
-	handleChange = (event) => {
-		console.log(event);
+	
+	handleTryAgain = ev => {
+		ev.preventDefault();
+		this.props.clearData && this.props.clearData(DataTypes.TEAMS);
+		this.props.clearData && this.props.clearData(DataTypes.MATCHES);
+
+		(this.props.match && this.props.loadTeamsData) && this.props.loadTeamsData(DataTypes.TEAMS, this.props.match.params.league);
+		(this.props.match && this.props.loadMatchesData) && this.props.loadMatchesData(DataTypes.MATCHES, this.props.match.params.league, {status: "FINISHED"});
 	}
+
 	render() {
-		let laliga, epl, italy, bundesliga, portugal, french, resultsDate, localDate, days, months, day, month, vdate;
-
-		if (this.props.results && this.props.results.matches) {
-			laliga = this.props.results.matches.filter((obj) => obj.competition.id === 2014);
-			epl = this.props.results.matches.filter((obj) => obj.competition.id === 2021);
-			italy = this.props.results.matches.filter((obj) => obj.competition.id === 2019);
-			bundesliga = this.props.results.matches.filter((obj) => obj.competition.id === 2002);
-			portugal = this.props.results.matches.filter((obj) => obj.competition.id === 2017);
-			french = this.props.results.matches.filter((obj) => obj.competition.id === 2015);
-			resultsDate = new Date(Date.parse(this.props.results.filters.dateFrom));
-			localDate = resultsDate;
-		    days = ["Sun", "Mon", "Tue", "Wed", "Thurs", "Fri", "Sat"];
-			months = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-
-			day = days[localDate.getDay()];
-			month = months[localDate.getMonth()];
-			vdate = localDate.getDate();
+		// handle page title
+		let title = "Premier League";
+		if (this.props.match && this.props.match.params.league && !this.props.match.params.clubId) {
+			title = LeaguesData.find(obj => obj.leagueCode === this.props.match.params.league).league;
+		}
+		else if (this.props.match && this.props.match.params.clubId) {
+			title = (this.props.teams && this.props.teams.teams.find(obj => obj.id === Number(this.props.match.params.clubId)).name) || <Preloader />;
 		}
 
-		return <div className="row prow">
-			<div className="col l8 offset-l2 s12">
-				<div className="container">
-				    <br /><br />
-					<p className="datepicker"><i className="left material-icons">calendar_today</i> {resultsDate && `${day}, ${vdate}/${month}`} <br /><small>choose date</small></p>
-					{(this.props.results === undefined) ? (<div className="center"><br /><br /><br /><Preloader /><br /><br /></div>) : ""}
-					{(this.props.results && this.props.results.matches.length === 0) ? (<MessagePanel message="No matches on this date" icon="deck" />) : ""}
-					{(laliga === undefined || laliga.length === 0) ? "" : <ResultsCard name="La Liga" matchesArray={laliga} />}
-					{(epl === undefined || epl.length === 0) ? "" : <ResultsCard name="English Premier League" matchesArray={epl} />}
-					{(italy === undefined || italy.length === 0) ? "" : <ResultsCard name="Serie A" matchesArray={italy} />}
-					{(bundesliga === undefined || bundesliga.length === 0) ? "" : <ResultsCard name="Bundesliga" matchesArray={bundesliga} />}
-					{(french === undefined || french.length === 0) ? "" : <ResultsCard name="Ligue 1" matchesArray={french} />}
-					{(portugal === undefined || portugal.length === 0) ? "" : <ResultsCard name="Primeira Liga" matchesArray={portugal} />}
-				</div>
+		// load results
+		let matches = (this.props.matches && !this.props.matches.error) && this.props.matches.matches;
+
+		if (matches && this.props.match && this.props.match.params.clubId) {
+			let clubId = Number(this.props.match.params.clubId);
+			matches = matches.filter(obj => obj.homeTeam.id === clubId || obj.awayTeam.id === clubId);
+		}
+
+		// sort matches by date descending
+		matches && matches.sort((a,b) => {
+			return new Date(b.utcDate) - new Date(a.utcDate);
+		})
+
+		let result = matches && matches.reduce((r, {id, utcDate}) => {
+			let dateObj = new Date(utcDate);
+			let monthyear = dateObj.toLocaleString("en-us", { month: "long", year: 'numeric' });
+    		let xo = [matches.find(item => item.id === id)];
+    		if(!r[monthyear]) r[monthyear] = {monthyear, xo, entries: 1}
+  			else {
+  				r[monthyear].entries++;
+    			r[monthyear].xo.push(matches.find(item => item.id === id));
+   			}
+  			return r;
+		}, {});
+
+		let ru = result && Object.values(result);
+
+		if (ru) {
+			for (let i=0; i<ru.length; i++) {
+				if (ru.hasOwnProperty(i)) {
+					ru[i]['xo'] = ru[i]['xo'].reduce((r, {id, utcDate}) => {
+						let dateObj = new Date(utcDate);
+						let dayMonth = dateObj.toLocaleString("en-GB", {day: 'numeric', weekday: 'long', month: 'long'});
+						let xxo = [matches.find(item => item.id === id)];
+						if(!r[dayMonth]) { 
+							r[dayMonth] = {dayMonth, xxo, entries: 1}
+						}
+						else {
+			  				r[dayMonth].entries++;
+			    			r[dayMonth].xxo.push(matches.find(item => item.id === id));
+			   			}
+			  			return r;
+					}, {});
+					ru[i]['xo'] = Object.values(ru[i]['xo']);
+				}
+			}
+		}
+		
+
+		
+
+		return <div className="white">
+			<div className="card-panel white z-depth-0 ugHeader">
+				<h5 className="grey-text text-darken-2">{title}</h5>
 			</div>
+			<Menu {...this.props} title="Results" match={this.props.match} />
+			{
+				this.props.match && <ResultsMenu {...this.props} handleTryAgain={this.handleTryAgain} lc={this.props.match.params.league} teams={this.props.teams} />
+			}
+
+			{
+				(ru && this.props.teams && !this.props.teams.error) && ru.map(item => <div key={item.monthyear}>
+					<h5 className="center monthYearTitle">{item.monthyear}</h5>
+					<br />
+					{
+						item.xo.map(obj => <React.Fragment key={obj.dayMonth}>
+							<div className="center dayMonthDiv indigo darken-4 white-text ugFrontContentCard">
+								{obj.dayMonth}
+							</div>
+							<table className="scoreTable">
+								<tbody>
+							{
+								obj.xxo.map(match => <tr key={match.id}>
+									<td className="first">{((this.props.teams && !this.props.teams.error) && this.props.teams.teams.find(item => item.id === match.homeTeam.id).shortName) || match.homeTeam.name}</td>
+									<td className="middle">
+										<span className="">
+											{match.score.fullTime.homeTeam} - {match.score.fullTime.awayTeam}
+										</span>
+									</td>
+									<td className="last">{this.props.teams.teams.find(item => item.id === match.awayTeam.id).shortName || match.awayTeam.name}<span className="right">FT</span></td>
+								</tr>)
+							}
+								</tbody>
+							</table>
+							<br />
+						</React.Fragment>)
+					}
+					<br /><br />
+				</div>)
+			}
+
+			{
+				(!ru && !this.props.matches) && <div className="center">
+					<br /><br />
+					<Preloader />
+					<br /><br />
+					<br /><br />
+				</div>
+			}
+
+			{
+				((this.props.matches && this.props.matches.error) || (this.props.matches && this.props.matches.matches.length === 0)) && <div className="row">
+					<div className="col s12 container">
+					<br />
+					<div className="card-panel center white-text">
+						<h3 className="grey-text text-darken-2">:(</h3>
+							<p className="grey-text text-darken-2">{this.props.matches.error}</p>
+							<button onClick={this.handleTryAgain} className="btn btn-flat textTransform white-text indigo darken-4">Try again</button>
+					</div>
+					</div>
+				</div>
+			}
 		</div>
 	}
 
 	componentDidMount() {
-		// activate all materialize components
-		// M.AutoInit();
-		let reProps = this.props.loadResultsData;
-		
-		if (this.props.loadResultsData && this.props.loadResultsData !== undefined) {
-			let today = new Date();
-			let dd = String(today.getDate()).padStart(2, '0');
-			let mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-			let yyyy = today.getFullYear();
+		this.props.clearData && this.props.clearData(DataTypes.TEAMS);
+		this.props.clearData && this.props.clearData(DataTypes.MATCHES);
 
-			today = yyyy + '-' + mm + '-' + dd;
+		(this.props.match && this.props.loadTeamsData) && this.props.loadTeamsData(DataTypes.TEAMS, this.props.match.params.league);
+		(this.props.match && this.props.loadMatchesData) && this.props.loadMatchesData(DataTypes.MATCHES, this.props.match.params.league, {status: "FINISHED"});
+	}
 
-			this.props.loadResultsData(DataTypes.RESULTS, today);
+	componentDidUpdate(prevProps) {
+		if (prevProps.match.params.league !== this.props.match.params.league) {
+			this.props.clearData && this.props.clearData(DataTypes.TEAMS);
+			this.props.clearData && this.props.clearData(DataTypes.MATCHES);
+
+			(this.props.match && this.props.loadTeamsData) && this.props.loadTeamsData(DataTypes.TEAMS, this.props.match.params.league);
+			(this.props.match && this.props.loadMatchesData) && this.props.loadMatchesData(DataTypes.MATCHES, this.props.match.params.league, {status: "FINISHED"});
 		}
 
-		let elems = document.querySelectorAll('.datepicker');
-		let options = {
-		 	autoClose: true,
-		 	onSelect: function(obj) {
-		 		let d = new Date(obj);
-		 		let dd = String(d.getDate()).padStart(2, '0');
-				let mm = String(d.getMonth() + 1).padStart(2, '0'); //January is 0!
-				let yyyy = d.getFullYear();
+		if (prevProps.match.url !== this.props.match.url) {
+			this.props.clearData && this.props.clearData(DataTypes.TEAMS);
+			this.props.clearData && this.props.clearData(DataTypes.MATCHES);
 
-				d = yyyy + '-' + mm + '-' + dd;
-
-				if (reProps(DataTypes.RESULTS, d)) {
-					
-					let toastElement = document.querySelector('.toast');
-				    let toastInstance = M.Toast.getInstance(toastElement);
-				    toastInstance.dismiss();
-				}
-				else {
-					M.toast({html: 'Loading...'});
-				}
-		 	}
-		};
-		if (elems && options) M.Datepicker.init(elems, options);
-		 
+			(this.props.match && this.props.loadTeamsData) && this.props.loadTeamsData(DataTypes.TEAMS, this.props.match.params.league);
+			(this.props.match && this.props.loadMatchesData) && this.props.loadMatchesData(DataTypes.MATCHES, this.props.match.params.league, {status: "FINISHED"});
+		}
 	}
 }

@@ -1,15 +1,152 @@
 body {
-    display: flex;
-    min-height: 100vh;
-    flex-direction: column;
+    display: flex !important;
+    min-height: 100vh !important;
+    flex-direction: column !important;
+}
+
+html {
+	font-family: 'Open Sans', sans-serif !important;
 }
 
 main {
-    flex: 1 0 auto;
+    flex: 1 0 auto !important;
 }
 
 blockquote {
     border-left: 5px solid #2F2F39 !important;
+}
+
+nav {
+	background: linear-gradient(to right,  #1a237e 0%,#1a237e 20%,#e53935 20%,#e53935 100%) !important;
+}
+
+nav .fas {
+	font-size: 14px;
+}
+
+.sortBtn {
+	text-transform: none !important;
+}
+
+.sidenav {
+	width: 100% !important;
+}
+
+.myProductDetailsNav {
+	height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 3000;
+    top: 0;
+    left: 0;
+    background-color: white;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    padding-top: 5px;
+    transition: width 0.1s linear;
+}
+
+.myProductDetailsNav .closebtn {
+    text-decoration: underline;
+    display: inline;
+    transition: 0.3s;
+    margin-bottom: 20px;
+    font-size: 1.25rem;
+}
+
+.myProductDetailsNav .closebtn:hover{
+    color: #f1f1f1;
+}
+
+.searchField::placeholder {
+	color: #616161;
+}
+
+.searchField:-ms-input-placeholder {
+	color: #616161;
+}
+
+.searchField::-webkit-input-placeholder {
+	color: #616161;
+}
+
+.sidenav li {
+	padding: 10px !important;
+}
+
+.closeSearchNav {
+	font-size: 2rem !important;
+	background-color: #1a237e !important;
+}
+
+.searchField {
+	width: 100%;
+	height: 3em;
+	border-radius: 4px;
+	border: 1px solid lightgrey;
+	padding-left: 5px;
+}
+
+.logoFont {
+	font-family: 'Luckiest Guy', cursive !important;
+}
+
+.ugPageName {
+	font-size: 1.25em !important;
+}
+
+.ugHeader {
+	padding: 10px !important;
+	margin: 0 !important;
+}
+
+.ugMainDiv {
+	margin-top: 0 !important;
+	padding: 0 !important;
+}
+
+.ugFrontMainCard {
+	margin-top: 0 !important;
+}
+
+.underlineText {
+	text-decoration: underline;
+}
+
+.ugMenuBtn {
+	margin-top: 2px;
+	
+}
+
+.ugMenuBtn strong {
+	font-weight: 900 !important;
+}
+
+.ugMenuTable {
+	margin: 10px;
+}
+
+.ugMenuTable tr {
+	border: none;
+	padding: 0 30px !important;
+}
+
+.ugMenuTable td {
+	padding: 5px 0px 10px 0px !important;
+	color: #616161 !important;
+}
+
+.ugMenuTable td:focus {
+	background-color: #bdbdbd 
+}
+
+.fixturesMenuBtns li {
+	display: inline-block;
+	padding-right: 10px;
+}
+
+.fixturesMenuBtns li button {
+	text-transform: none;
 }
 
 .flex-container {
@@ -39,6 +176,137 @@ blockquote {
 	-webkit-flex: 0 0 20%;
 	flex: 0 0 20%;
 	margin: 5px;
+}
+
+.ugFrontContentCard {
+	padding: 15px !important;
+	font-size: 1.125rem !important;
+	margin: 0 !important;
+}
+
+.ugFrontContentCard span {
+	font-weight: 900;
+}
+
+
+.ugCardTitle {
+	font-size: 1.625rem;
+	line-height: 1.1 !important;
+}
+
+.ugFeaturedCard .card-content {
+	padding: 10px !important;
+}
+
+.ugFeaturedCard h5 {
+	font-size: 1.125rem !important;
+}
+
+.ugFeaturedCard span {
+	font-size: 12px;
+}
+
+.ugLatestTable {
+	width: 100%;
+}
+
+.ugLatestTable tr {
+	border: none !important;
+}
+
+.ugLatestTable .ugLatestImageRow {
+	width: 30% !important;
+}
+
+.ugLatestTable span {
+	font-size: 12px;
+}
+
+.ugArticleTitle {
+    font-size: 2.6em;
+    font-weight: normal;
+    line-height: 1.15em;
+    margin: 0 0 .5em 0;
+}
+
+.ugButton {
+	text-transform: none !important;
+	background: linear-gradient(to right,  #1a237e 0%,#1a237e 20%,#e53935 20%,#e53935 100%) !important;
+}
+
+.textTransform {
+	text-transform: none !important;
+}
+
+.ugBorder {
+	border: 1px solid lightgrey;
+}
+
+.ugResultsCardMenu {
+	margin: 0;
+}
+
+.ugResultsCardMenu li {
+	display: inline-block;
+	padding: 0 20px 0 0;
+}
+
+.ugComp {
+	column-count: 2;
+	column-rule: 1px solid #dcdcdc;
+	column-gap: 40px;
+	transition: height 2s;
+	background: #f4f4f4;
+	width: 100%;
+	margin: 0;
+	padding: 1rem;
+}
+
+.ugComp li {
+	font-size: 1em;
+	display: inline-block;
+    width: 100%;
+    padding: .4em;
+}
+
+.increaseFontSize {
+	font-size: 1.5rem
+}
+
+.ugStandCardMenu .right {
+	margin-top: 5px;
+}
+
+.teamsDiv span {
+	font-size: 1.2rem;
+}
+
+.dayMonthDiv {
+	font-weight: 700;
+}
+
+.monthYearTitle {
+	font-size: 1.8rem;
+}
+
+.standingsTable {
+	font-weight: 700;
+}
+
+.ugEuropa {
+	border-top: 1px solid grey !important;
+	border-bottom: 1px solid grey;
+}
+
+footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+}
+
+footer i {
+	line-height: 1.5 !important;
 }
 
 .catTabs .tab {
@@ -83,13 +351,6 @@ blockquote {
 	padding-top: 15px;
 }
 
-.middle-nav a {
-	font-weight: bold;
-}
-.middle-nav {
-	line-height: 100px;
-	height: 100px;
-}
 .bottom-nav a {
 	font-weight: bold;
 }
@@ -124,21 +385,45 @@ blockquote {
     padding-right: 20px;
 }
 
-.page-footer {
-	background: #2F2F39 !important;
+.boxScore {
+	background-color: red;
+	color: white;
+	margin: 10px;
+	padding: 5px;
 }
 
-.footer-headline {
-	font-size: 20px;
+.scoreTable {
+	width: 100%;
 }
+
+.scoreTable .middle {
+	width: 20%;
+	text-align: center;
+}
+
+.scoreTable .middle span {
+	background-color: red;
+	color: white;
+	font-weight: 700;
+	padding: 3px 10px;
+}
+
+.scoreTable .first {
+	width: 40%;
+	text-align: right;
+	font-weight: 700;
+}
+
+.scoreTable .last {
+	width: 40%;
+	text-align: left;
+	font-weight: 700;
+}
+
 
 .explore-btn {
 	background-color: #FDC624 !important;
 	font-weight: bold;
-}
-
-.footer-right {
-	background-color: #FDC624 !important;
 }
 
 .more-links a {
@@ -251,21 +536,9 @@ blockquote {
 		margin-left: 200px;
 		position: relative;
 	}
-	.footer-web-name {
-		position: absolute;
-		left: 70px;
-		top: 10px;
-		font-weight: bold;
-		font-size: 18px;
-		line-height: 27px;
-		color: #2C2C36;
-	}
 }
 
 @media only screen and (max-width: 768px) {
-	.footer-web-name {
-		display: none;
-	}
 	.text-block {
 		display: none;
 	}
@@ -320,8 +593,11 @@ blockquote {
 		line-height: 50px;
 		height: 50px;
 	}
-	.front-content-card {
-		padding: 5px !important;
+}
+
+@media only screen and (max-width: 320px) {
+	.increaseFontSize {
+		font-size: 1.25rem;
 	}
 }
 

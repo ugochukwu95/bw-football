@@ -1,82 +1,118 @@
 import React, {Component} from "react";
-import { DataTypes } from "../data/Types";
 import {Link} from "react-router-dom";
+import { DataTypes } from "../data/Types";
+import {cleanUrlText} from "./cleanUrlText";
+import {Preloader} from "./Preloader";
+import ReactTimeAgo from 'react-time-ago';
+import {Menu} from "./Menu";
+
+const Entities = require('html-entities').XmlEntities;
+ 
+const entities = new Entities();
 
 export class News extends Component {
+
+	handleClear = () => {
+		this.props.clearData && this.props.clearData(DataTypes.NEWS_DETAILS);
+		this.props.clearData && this.props.clearData(DataTypes.NEWS_RELATED);
+	}
 	render() {
-		let localDate, days, months, day, month, vdate, yyyy;
-
-		let id = this.props.match && this.props.match.params.newsId;
-		let newsDetails = this.props.news && this.props.news.find((obj) => obj.id === Number(id));
-		let relatedNews = this.props.news && this.props.news.filter((obj) => obj.id !== Number(id) && obj.image !== null).slice(0, 4);
-		if (newsDetails !== undefined) {
-			localDate = new Date(Date.parse(newsDetails.datePosted));
-			days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-			months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", 
-				"October", "November", "December"];
-
-			day = days[localDate.getDay()];
-			month = months[localDate.getMonth()];
-			vdate = localDate.getDate();
-			yyyy = localDate.getFullYear();
-		}
-
-		return <div className=""> 
-			<div className="row">
-				<div className="col l10 offset-l1 s12">
-					<div className="card white">
-						<div className="card-content grey-text text-darken-1">
-							<h5>
-								<blockquote>
-						        	<strong>{newsDetails.title}</strong>
-						    	</blockquote>
-						    </h5>
-						    <p>
-				        		{`Date published: ${day && day} ${vdate && vdate}th ${month && month} ${yyyy}`}
-				        	</p>
-				        	<br />
-						    {newsDetails.image && <div className="center">
-						    	<img className="responsive-img" 
-						    	src={require(`../images/front-page-images/${newsDetails.image}`)} alt={newsDetails.title} />
-						    	</div>}
-						    <br />
-						    <p className="flow-text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Id venenatis a condimentum vitae sapien pellentesque habitant. Massa enim nec dui nunc mattis enim ut tellus. In ornare quam viverra orci sagittis eu volutpat odio. Ultrices vitae auctor eu augue ut. Morbi blandit cursus risus at ultrices mi. Venenatis cras sed felis eget velit aliquet sagittis id. Faucibus pulvinar elementum integer enim neque volutpat. Diam vulputate ut pharetra sit amet aliquam id. Risus nec feugiat in fermentum. Neque viverra justo nec ultrices dui sapien eget. Diam volutpat commodo sed egestas egestas fringilla. Diam sit amet nisl suscipit adipiscing bibendum est ultricies. Curabitur vitae nunc sed velit. Facilisi cras fermentum odio eu. Tortor condimentum lacinia quis vel eros donec ac. Arcu non sodales neque sodales ut etiam sit amet nisl. In hendrerit gravida rutrum quisque non tellus. Porta non pulvinar neque laoreet suspendisse interdum.</p><br />
-						    <p className="flow-text">Adipiscing vitae proin sagittis nisl rhoncus mattis rhoncus. Cursus mattis molestie a iaculis at erat pellentesque. Et tortor at risus viverra adipiscing at in tellus integer. Rhoncus aenean vel elit scelerisque mauris pellentesque pulvinar pellentesque habitant. In iaculis nunc sed augue lacus viverra vitae congue eu. Varius sit amet mattis vulputate enim nulla aliquet porttitor lacus. Senectus et netus et malesuada fames ac turpis egestas. A condimentum vitae sapien pellentesque habitant morbi tristique senectus et. Pellentesque habitant morbi tristique senectus et netus et. Etiam non quam lacus suspendisse faucibus interdum posuere lorem. Placerat orci nulla pellentesque dignissim enim sit. A diam sollicitudin tempor id eu. Vel risus commodo viverra maecenas accumsan lacus vel. Quis lectus nulla at volutpat diam ut venenatis tellus in. Sodales neque sodales ut etiam sit amet nisl purus. Sed blandit libero volutpat sed cras ornare. Nulla pellentesque dignissim enim sit amet venenatis urna cursus eget.</p><br />
-						    <p className="flow-text">Lectus urna duis convallis convallis tellus id. Morbi enim nunc faucibus a pellentesque. Ac tortor vitae purus faucibus ornare suspendisse. Turpis massa tincidunt dui ut ornare lectus. Purus in mollis nunc sed id semper risus in. Facilisis sed odio morbi quis commodo odio aenean sed. Ut ornare lectus sit amet est. Sed faucibus turpis in eu mi bibendum neque egestas congue. Molestie nunc non blandit massa enim nec dui nunc mattis. Mus mauris vitae ultricies leo integer malesuada nunc vel risus. Non pulvinar neque laoreet suspendisse interdum consectetur libero id faucibus. Cras semper auctor neque vitae tempus quam pellentesque. Congue nisi vitae suscipit tellus.</p>
-					    </div>
-					</div>
-				</div>
-			</div>
-			<div className="row">
-				<div className="col l10 offset-l1 s12">
-					<h5 className="center grey-text text-darken-1"><strong>Related News</strong></h5>
-					<br />
-					<div className="container">
-					<div className="flex-container">
-					{relatedNews.map((obj) => {
-						return <div className="flex-item" key={obj.id}>
-							<Link to={`/news/${obj.title.replace(/\s+/g, '-').toLowerCase()}/${obj.id}`}>
-								<div className="card white">
-									<div className="card-image">
-										<img className="responsive-img" src={require(`../images/front-page-images/${obj.image}`)} 
-											alt={obj.id} />
-											 
-									</div>
-									<div className="card-content black white-text">
-										<p>{(obj.title).substring(0,100)}</p>
-									</div>
-								</div>
-							</Link>
+		(this.props.news_details && !this.props.news_related && this.props.loadNewsRelated) && this.props.loadNewsRelated(DataTypes.NEWS_RELATED, {category: this.props.news_details['category']});
+		return <React.Fragment> 
+			{
+				this.props.news_details && <React.Fragment>
+					<Link className="grey-text text-darken-2" to={`/category/${this.props.news_details.category}`}>
+						<div className="card-panel white z-depth-0 ugHeader">
+							<h5 className="grey-text text-darken-2">{this.props.news_details.category}</h5>
 						</div>
-					})}
+					</Link>
+					<Menu {...this.props} title="News" />
+					<div className="white">
+						<div className="card white z-depth-0">
+							<div className="card-content white ugFrontContentCard">
+								<h1 className="ugArticleTitle black-text text-darken-2">
+									<strong>{this.props.news_details.title}</strong>
+								</h1>
+								<p className="grey-text text-darken-2">
+									Last Updated: <ReactTimeAgo date={Date.parse(this.props.news_details.pubDate)}/>
+								</p>
+								<br />
+								<img className="responsive-img" src={this.props.news_details.thumbnail} alt={this.props.news_details.title} />
+								<br /><br />
+								<p className="grey-text text-darken-2 flow-text">
+									{entities.decode(this.props.news_details.description)}
+								</p>
+								<br /><br />
+								<p className="grey-text text-darken-2">
+									<a href={this.props.news_details.link} target="_blank" rel="noopener noreferrer" className="blue-text">Read more at {this.props.news_details.source}</a>
+								</p>
+								<br />
+								<div className="divider"></div>
+								<br />
+
+								{
+									(this.props.news_related && !(this.props.news_related.docs.length < 2)) && <div>
+										<h6 className="grey-text text-darken-2">Also See</h6>
+										<table>
+											<tbody>
+												{
+													this.props.news_related.docs.filter(item => item._id !== this.props.news_details['_id']).slice(0,5).map(obj => <tr key={obj._id}>
+															<td className="grey-text text-darken-2">></td>
+															<td>
+																<Link onClick={this.handleClear} className="grey-text text-darken-2" to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
+																	<strong>{obj.title}</strong>
+																</Link>
+															</td>
+														</tr>)
+												}
+											</tbody>
+										</table>
+									</div>
+								}
+
+								{
+									!this.props.news_related && <div className="center">
+										<br /><br />
+										<Preloader />
+										<br /><br />
+									</div>
+								}
+							</div>
+						</div>
 					</div>
-					</div>
+				</React.Fragment>
+			}
+
+			{
+				(!this.props.news_details) && <div className="center">
+					<br /><br />
+					<Preloader />
+					<br /><br />
 				</div>
-			</div>
-		</div>
+			}
+		</React.Fragment>
 	}
 
 	componentDidMount() {
-		this.props.loadData(DataTypes.NEWS);
+		// I prefer showing the loading spinner than an earlier document
+		this.props.clearData && this.props.clearData(DataTypes.NEWS_DETAILS);
+		(this.props.match && !this.props.news_details && this.props.loadNewsDetails) && this.props.loadNewsDetails(DataTypes.NEWS_DETAILS, {newsId: this.props.match.params['newsId']});
+
+		// GET related articles
+		this.props.clearData && this.props.clearData(DataTypes.NEWS_RELATED);
+		(this.props.news_details && !this.props.news_related && this.props.loadNewsRelated) && this.props.loadNewsRelated(DataTypes.NEWS_RELATED, {category: this.props.news_details['category']});
+		
+	}
+
+	componentDidUpdate(prevProps) {
+		if ((prevProps.news_details !== undefined && prevProps.news_details !== null) && prevProps.news_details !== this.props.news_details) {
+			(this.props.match && !this.props.news_details && this.props.loadNewsDetails) && this.props.loadNewsDetails(DataTypes.NEWS_DETAILS, {newsId: this.props.match.params['newsId']});
+			(this.props.news_details && !this.props.news_related && this.props.loadNewsRelated) && this.props.loadNewsRelated(DataTypes.NEWS_RELATED, {category: this.props.news_details['category']});
+		}
+
+		if (prevProps.match.params.newsId !== this.props.match.params.newsId) {
+			this.props.clearData && this.props.clearData(DataTypes.NEWS_RELATED);
+			this.props.clearData && this.props.clearData(DataTypes.NEWS_DETAILS);
+		}
 	}
 }

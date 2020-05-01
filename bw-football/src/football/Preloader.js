@@ -1,7 +1,7 @@
 import React from "react";
 
 export function Preloader() { 
-	return (<div className="preloader-wrapper center big active">
+	return (<div className="preloader-wrapper center small active">
 		      <div className="spinner-layer spinner-blue">
 		        <div className="circle-clipper left">
 		          <div className="circle"></div>
