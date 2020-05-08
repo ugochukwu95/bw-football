@@ -90,14 +90,28 @@ export class Football extends Component {
 
 		return <React.Fragment>
 			<header>
-				<div className="navbar-fixed">
+				<div className="navbar-fixed hide-on-large-only">
 					<nav className="white-text red darken-1">
 						<div className="nav-wrapper">
 							<ul className="left white-text">
-								<li><Link to="/" className="white-text logoFont ugPageName">BWSPORTS</Link></li>
+								<li><Link to="/" className="white-text ugPageName">BW SPORTS</Link></li>
 							</ul>
 							<ul className="right white-text">
 								<li><a href="#!" onClick={this.openReviews} className="white-text"><i className="fas fa-search"></i></a></li>
+							</ul>
+						</div>
+					</nav>
+				</div>
+				<div className="navbar-fixed hide-on-med-and-down">
+					<nav className="white-text red darken-1 z-depth-0">
+						<div className="nav-wrapper container">
+							<ul className="left white-text">
+								<li><Link to="/" className="white-text ugPageName">BW SPORTS</Link></li>
+							</ul>
+							<ul className="right white-text">
+								<li>
+									<input type="text" className="browser-default" placeholder="Search BW Sports" onClick={this.openReviews} value={this.state.searchField} />
+								</li>
 							</ul>
 						</div>
 					</nav>
@@ -110,7 +124,7 @@ export class Football extends Component {
 
 				<div id="myProductReviewsNav" className="myProductDetailsNav white">
 					<div className="row">
-						<div className="col s12">
+						<div className="col l6 offset-l3 s12">
 							<p>
 								<a href="#!" className="closebtn sec-color right" onClick={this.closeNav}>Back</a>
 							</p>
@@ -118,6 +132,36 @@ export class Football extends Component {
 							
 							{
 								(this.props.search_results && this.props.search_results.data && !this.props.search_results.data.error) && <React.Fragment>
+									<div className="white hide-on-large-only">
+										{
+											(this.props.search_results.data.length > 1) && <p>
+												<button onClick={this.handleSortByDate} className={`btn sortBtn ${(this.state.sortByDate) ? "disabled" : "indigo darken-4 white-text"}`}>Sort by date</button>
+											</p>
+										}
+										<br />
+										<table className="ugLatestTable">
+											<tbody>
+												{
+													this.props.search_results.data.map(obj => <tr key={obj._id}>
+														<td className="ugLatestImageRow">
+															<Link onClick={this.closeAndNavigate(cleanUrlText(obj.title), obj._id)} to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
+																<img className="lazy responsive-img" src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" data-src={obj.thumbnail} data-srcset={`${obj.thumbnail || `/unavailable-image.jpg`} 1x`} alt={obj.title} />
+															</Link>
+														</td>
+														<td>
+															<span className="grey-text text-darken-2"><ReactTimeAgo date={Date.parse(obj.pubDate)}/></span>
+															<br />
+															<Link onClick={this.closeAndNavigate(cleanUrlText(obj.title), obj._id)} className="grey-text text-darken-2" to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
+																<strong>{obj.title}</strong>
+															</Link>
+														</td>
+													</tr>)
+												}
+											</tbody>
+										</table>
+										<br />
+									</div>
+
 									<div className="white">
 										{
 											(this.props.search_results.data.length > 1) && <p>
@@ -183,6 +227,9 @@ export class Football extends Component {
 						<span className="white-text">Built by Ugo</span> <span className="right white-text"> Find me &nbsp; <i className="fas fa-angle-right"></i></span>
 					</div>
 				</a>
+				<div class="footer-copyright">
+
+				</div>
 			</footer>
 		</React.Fragment>
 	}

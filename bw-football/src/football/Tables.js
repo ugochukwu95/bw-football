@@ -5,6 +5,7 @@ import {Preloader} from "./Preloader";
 import {Menu} from "./Menu";
 import LeaguesData from "./LeaguesData";
 import {StandingsMenu} from "./StandingsMenu";
+import {DesktopMenu} from "./DesktopMenu";
 
 export class Tables extends Component {
 
@@ -22,13 +23,30 @@ export class Tables extends Component {
 		}
 
 		return <div className="white">
-			<div className="card-panel white z-depth-0 ugHeader">
+			<div className="card-panel white z-depth-0 ugHeader hide-on-large-only">
 				<h5 className="grey-text text-darken-2">{title}</h5>
 			</div>
+			<div className="hide-on-med-and-down container">
+				<br /><br />
+				<div className="card-panel white z-depth-0 ugHeader">
+					<h4 className="grey-text text-darken-2">{title}</h4>
+				</div>
+				<DesktopMenu {...this.props} title="Tables" />
+			</div>
+
 			<Menu {...this.props} title="Tables" match={this.props.match} />
-			<StandingsMenu standings={this.props.standings} />
-			<div className="center dayMonthDiv indigo darken-4 white-text ugFrontContentCard">
-				{title} {(this.props.standings && !this.props.standings.error) && (new Date(this.props.standings.season.startDate)).getFullYear()} {(this.props.standings && !this.props.standings.error) && "/"} {(this.props.standings && !this.props.standings.error) && (new Date(this.props.standings.season.endDate)).getFullYear()}
+
+			<div className="hide-on-med-and-down container">
+				<StandingsMenu standings={this.props.standings} />
+				<div className="center dayMonthDiv indigo darken-4 white-text ugFrontContentCard">
+					{title} {(this.props.standings && !this.props.standings.error) && (new Date(this.props.standings.season.startDate)).getFullYear()} {(this.props.standings && !this.props.standings.error) && "/"} {(this.props.standings && !this.props.standings.error) && (new Date(this.props.standings.season.endDate)).getFullYear()}
+				</div>
+			</div>
+			<div className="hide-on-large-only">
+				<StandingsMenu standings={this.props.standings} />
+				<div className="center dayMonthDiv indigo darken-4 white-text ugFrontContentCard">
+					{title} {(this.props.standings && !this.props.standings.error) && (new Date(this.props.standings.season.startDate)).getFullYear()} {(this.props.standings && !this.props.standings.error) && "/"} {(this.props.standings && !this.props.standings.error) && (new Date(this.props.standings.season.endDate)).getFullYear()}
+				</div>
 			</div>
 			{
 				(this.props.standings && !this.props.standings.error) && <div className="container">

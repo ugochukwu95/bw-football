@@ -5,6 +5,7 @@ import {cleanUrlText} from "./cleanUrlText";
 import {Preloader} from "./Preloader";
 import ReactTimeAgo from 'react-time-ago';
 import {Menu} from "./Menu";
+import {DesktopMenu} from "./DesktopMenu";
 
 export class Category extends Component {
 	constructor(props) {
@@ -35,40 +36,93 @@ export class Category extends Component {
 	render() {
 		return <React.Fragment>
 			{
-				this.props.news_category && <React.Fragment>
+				this.props.match && <div className="hide-on-med-and-down container">
+					<br /><br />
 					<div className="card-panel white z-depth-0 ugHeader">
-						<h5 className="grey-text text-darken-2">{decodeURIComponent(this.props.match.params.title)}</h5>
+						<h4 className="grey-text text-darken-2">{decodeURIComponent(this.props.match.params.title)}</h4>
 					</div>
-					<Menu {...this.props} title="Category" match={this.props.match} />
-					<div className="white">
-						<br />
-						<table className="ugLatestTable">
-							<tbody>
-								{
-									this.props.news_category.data.map(obj => <tr key={obj._id}>
-										<td className="ugLatestImageRow">
-											<Link to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
-												<img className="lazy responsive-img" src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" data-src={obj.thumbnail} data-srcset={`${obj.thumbnail || `/unavailable-image.jpg`} 1x`} alt={obj.title} />
-											</Link>
-										</td>
-										<td>
-											<span className="grey-text text-darken-2"><ReactTimeAgo date={Date.parse(obj.pubDate)}/></span>
-											<br />
-											<Link className="grey-text text-darken-2" to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
-												<strong>{obj.title}</strong>
-											</Link>
-										</td>
-									</tr>)
-								}
-							</tbody>
-						</table>
-						<br />
+					<DesktopMenu {...this.props} title="Home" title="Category" />
+				</div>
+			}
+			{
+				this.props.news_category && <React.Fragment>
+					<div className="hide-on-large-only">
+						<div className="card-panel white z-depth-0 ugHeader">
+							<h5 className="grey-text text-darken-2">{decodeURIComponent(this.props.match.params.title)}</h5>
+						</div>
+						<Menu {...this.props} title="Category" match={this.props.match} />
+						<div className="white">
+							<br />
+							<table className="ugLatestTable">
+								<tbody>
+									{
+										this.props.news_category.data.map(obj => <tr key={obj._id}>
+											<td className="ugLatestImageRow">
+												<Link to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
+													<img className="lazy responsive-img" src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" data-src={obj.thumbnail} data-srcset={`${obj.thumbnail || `/unavailable-image.jpg`} 1x`} alt={obj.title} />
+												</Link>
+											</td>
+											<td>
+												<span className="grey-text text-darken-2"><ReactTimeAgo date={Date.parse(obj.pubDate)}/></span>
+												<br />
+												<Link className="grey-text text-darken-2" to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
+													<strong>{obj.title}</strong>
+												</Link>
+											</td>
+										</tr>)
+									}
+								</tbody>
+							</table>
+							<br />
+						</div>
+					</div>
+
+					<div className="hide-on-med-and-down container">
+						
+
+						<div className="white container">
+							<div className="divider"></div>
+							<table className="ugLatestTable">
+								<tbody>
+									{
+										this.props.news_category.data.map(obj => <tr key={obj._id}>
+											<td className="ugLatestImageRow">
+												<Link to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
+													<img className="lazy responsive-img" src="https://upload.wikimedia.org/wikipedia/commons/b/b1/Loading_icon.gif" data-src={obj.thumbnail} data-srcset={`${obj.thumbnail || `/unavailable-image.jpg`} 1x`} alt={obj.title} />
+												</Link>
+											</td>
+											<td>
+												<span>
+													<Link className="blue-text catItemLink" to={`/category/${obj.category}`}>{obj.category}</Link>
+												</span> &nbsp; 
+												<span className="grey-text text-darken-2"><ReactTimeAgo date={Date.parse(obj.pubDate)}/></span>
+												<br />
+												<Link className="grey-text text-darken-2" to={`/news/${cleanUrlText(obj.title)}/${obj._id}`}>
+													<strong className="black-text ugLatestTitle">{obj.title}</strong>
+													<br />
+													<strong>{obj.description.length < 100 ? obj.description : obj.description.substring(0, 100) + " ..."}</strong>
+												</Link>
+											</td>
+										</tr>)
+									}
+								</tbody>
+							</table>
+							<br />
+						</div>
 					</div>
 				</React.Fragment>
 			}
 
 			{
 				(!this.props.news_category) && <div className="center">
+					<br /><br />
+					<Preloader />
+					<br /><br />
+				</div>
+			}
+
+			{
+				(this.state.loading) && <div className="center">
 					<br /><br />
 					<Preloader />
 					<br /><br />
@@ -148,7 +202,6 @@ export class Category extends Component {
 
 	componentDidUpdate(prevProps) {
 		if ((prevProps.news_category !== undefined && prevProps.news_category !== null) && prevProps.news_category !== this.props.news_category) {
-			this.props.clearData && this.props.clearData(DataTypes.NEWS_CATEGORY);
 			(!this.props.news_category && this.props.loadNewsCategory) && this.props.loadNewsCategory(DataTypes.NEWS_CATEGORY, {category: decodeURIComponent(this.props.match.params.title)});
 		}
 

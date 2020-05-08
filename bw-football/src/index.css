@@ -16,12 +16,60 @@ blockquote {
     border-left: 5px solid #2F2F39 !important;
 }
 
+body {
+	background-color: white !important;
+}
+
 nav {
-	background: linear-gradient(to right,  #1a237e 0%,#1a237e 20%,#e53935 20%,#e53935 100%) !important;
+	background: linear-gradient(0deg, rgba(0,0,0,0.3) 0, rgba(0,0,0,0) 76%),linear-gradient(to right, #122d68 0%, #122d68 20%, #d61726 20%, #d61726 100%) !important;
+	height: 94px !important;
+	position: relative !important;
+}
+
+.ugPageName {
+	font-size: 3em !important;
+	position: absolute !important;
+	left: -25px;
+	top: 14px;
+	font-weight: 700;
 }
 
 nav .fas {
 	font-size: 14px;
+}
+
+nav input {
+	position: absolute;
+	top: 29px;
+	right: 10px;
+	background-color: transparent;
+	outline: none;
+	border: 1px solid #eeeeee;
+	padding: 8px 24px;
+	background-repeat: no-repeat;
+    background-size: 1.6em;
+    background-position: right 0.6em center;
+    padding-right: 2.5em;
+    background-image: url('/output-onlinepngtools.png');
+}
+
+nav input::placeholder {
+	color: white !important;
+}
+
+#overlay {
+  position: absolute; /* Sit on top of the page content */
+  display: block; /* Hidden by default */
+  width: 100%; /* Full width (cover the whole page) */
+  height: 40%; /* Full height (cover the whole page) */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0,0,0,0.5); /* Black background with opacity */
+  z-index: 2; /* Specify a stack order in case you're using a different order for other elements */
+  cursor: pointer; /* Add a pointer on hover */
+  opacity: 0.2;
+  background-blend-mode: darken;
 }
 
 .sortBtn {
@@ -30,6 +78,26 @@ nav .fas {
 
 .sidenav {
 	width: 100% !important;
+}
+
+.ugDesktopMenu {
+	width: 100%;
+	border-bottom: 1px solid lightgrey;
+	border-top: 1px solid lightgrey;
+	padding: 10px;
+}
+
+.ugDesktopMenu li {
+	display: inline-block;
+	margin-right: 30px;
+}
+
+.ugDesktopMenu li:first-child {
+	margin-left: 10px;
+}
+
+.ugDesktopMenu .dropdown-trigger .fas {
+	font-size: 12px !important;
 }
 
 .myProductDetailsNav {
@@ -89,10 +157,6 @@ nav .fas {
 
 .logoFont {
 	font-family: 'Luckiest Guy', cursive !important;
-}
-
-.ugPageName {
-	font-size: 1.25em !important;
 }
 
 .ugHeader {
@@ -249,6 +313,7 @@ nav .fas {
 .ugResultsCardMenu li {
 	display: inline-block;
 	padding: 0 20px 0 0;
+	cursor: pointer;
 }
 
 .ugComp {
@@ -298,15 +363,19 @@ nav .fas {
 	border-bottom: 1px solid grey;
 }
 
-footer {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	width: 100%;
+#catDesktopDrop {
+	width: 100px !important;
+	min-width: 300px !important;
+}
+.catItemLink {
+	font-size: 16px;
+}
+.ugLatestTitle {
+	font-weight: 700;
 }
 
-footer i {
-	line-height: 1.5 !important;
+.ugBoldText {
+	font-weight: 700;
 }
 
 .catTabs .tab {
@@ -539,6 +608,18 @@ footer i {
 }
 
 @media only screen and (max-width: 768px) {
+	nav {
+		background: linear-gradient(to right,  #1a237e 0%,#1a237e 20%,#e53935 20%,#e53935 100%) !important;
+		height: 56px !important;
+	}
+
+	.ugPageName {
+		font-size: 1.25em !important;
+		margin-left: 42px;
+		margin-top: -15px !important;
+		font-weight: 700;
+	}
+
 	.text-block {
 		display: none;
 	}
@@ -570,6 +651,9 @@ footer i {
 }
 
 @media only screen and (max-width: 600px) {
+	body {
+		background-color: #fafafa !important;
+	}
 	.flex-container {
 		display: flex;
 		flex-direction: row;

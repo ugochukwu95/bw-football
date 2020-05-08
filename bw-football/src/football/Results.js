@@ -5,6 +5,7 @@ import {Preloader} from "./Preloader";
 import {Menu} from "./Menu";
 import {ResultsMenu} from "./ResultsMenu";
 import LeaguesData from "./LeaguesData";
+import {DesktopMenu} from "./DesktopMenu";
 
 export class Results extends Component {
 	
@@ -79,66 +80,87 @@ export class Results extends Component {
 		
 
 		return <div className="white">
-			<div className="card-panel white z-depth-0 ugHeader">
-				<h5 className="grey-text text-darken-2">{title}</h5>
-			</div>
-			<Menu {...this.props} title="Results" match={this.props.match} />
-			{
-				this.props.match && <ResultsMenu {...this.props} handleTryAgain={this.handleTryAgain} lc={this.props.match.params.league} teams={this.props.teams} />
-			}
+				<div className="card-panel white z-depth-0 ugHeader hide-on-large-only">
+					<h5 className="grey-text text-darken-2">{title}</h5>
+				</div>
 
-			{
-				(ru && this.props.teams && !this.props.teams.error) && ru.map(item => <div key={item.monthyear}>
-					<h5 className="center monthYearTitle">{item.monthyear}</h5>
-					<br />
+				<div className="hide-on-med-and-down container">
+					<br /><br />
+					<div className="card-panel white z-depth-0 ugHeader">
+						<h4 className="grey-text text-darken-2">{title}</h4>
+					</div>
+					<DesktopMenu {...this.props} title="Results" />
+				</div>
+
+				<Menu {...this.props} title="Results" match={this.props.match} />
+				<div className="container hide-on-med-and-down">
 					{
-						item.xo.map(obj => <React.Fragment key={obj.dayMonth}>
-							<div className="center dayMonthDiv indigo darken-4 white-text ugFrontContentCard">
-								{obj.dayMonth}
-							</div>
-							<table className="scoreTable">
-								<tbody>
-							{
-								obj.xxo.map(match => <tr key={match.id}>
-									<td className="first">{((this.props.teams && !this.props.teams.error) && this.props.teams.teams.find(item => item.id === match.homeTeam.id).shortName) || match.homeTeam.name}</td>
-									<td className="middle">
-										<span className="">
-											{match.score.fullTime.homeTeam} - {match.score.fullTime.awayTeam}
-										</span>
-									</td>
-									<td className="last">{this.props.teams.teams.find(item => item.id === match.awayTeam.id).shortName || match.awayTeam.name}<span className="right">FT</span></td>
-								</tr>)
-							}
-								</tbody>
-							</table>
-							<br />
-						</React.Fragment>)
+						this.props.match && <ResultsMenu {...this.props} handleTryAgain={this.handleTryAgain} lc={this.props.match.params.league} teams={this.props.teams} />
 					}
-					<br /><br />
-				</div>)
-			}
-
-			{
-				(!ru && !this.props.matches) && <div className="center">
-					<br /><br />
-					<Preloader />
-					<br /><br />
-					<br /><br />
 				</div>
-			}
+				<div className="hide-on-large-only">
+					{
+						this.props.match && <ResultsMenu {...this.props} handleTryAgain={this.handleTryAgain} lc={this.props.match.params.league} teams={this.props.teams} />
+					}
+				</div>
+				
+				<div className="row">
+					<div className="col s12 l6 offset-l3">
 
-			{
-				((this.props.matches && this.props.matches.error) || (this.props.matches && this.props.matches.matches.length === 0)) && <div className="row">
-					<div className="col s12 container">
-					<br />
-					<div className="card-panel center white-text">
-						<h3 className="grey-text text-darken-2">:(</h3>
-							<p className="grey-text text-darken-2">{this.props.matches.error}</p>
-							<button onClick={this.handleTryAgain} className="btn btn-flat textTransform white-text indigo darken-4">Try again</button>
-					</div>
+					{
+						(ru && this.props.teams && !this.props.teams.error) && ru.map(item => <div key={item.monthyear}>
+							<h5 className="center monthYearTitle">{item.monthyear}</h5>
+							<br />
+							{
+								item.xo.map(obj => <React.Fragment key={obj.dayMonth}>
+									<div className="center dayMonthDiv indigo darken-4 white-text ugFrontContentCard">
+										{obj.dayMonth}
+									</div>
+									<table className="scoreTable">
+										<tbody>
+									{
+										obj.xxo.map(match => <tr key={match.id}>
+											<td className="first">{((this.props.teams && !this.props.teams.error) && this.props.teams.teams.find(item => item.id === match.homeTeam.id).shortName) || match.homeTeam.name}</td>
+											<td className="middle">
+												<span className="">
+													{match.score.fullTime.homeTeam} - {match.score.fullTime.awayTeam}
+												</span>
+											</td>
+											<td className="last">{this.props.teams.teams.find(item => item.id === match.awayTeam.id).shortName || match.awayTeam.name}<span className="right">FT</span></td>
+										</tr>)
+									}
+										</tbody>
+									</table>
+									<br />
+								</React.Fragment>)
+							}
+							<br /><br />
+						</div>)
+					}
+
+					{
+						(!ru && !this.props.matches) && <div className="center">
+							<br /><br />
+							<Preloader />
+							<br /><br />
+							<br /><br />
+						</div>
+					}
+
+					{
+						((this.props.matches && this.props.matches.error) || (this.props.matches && this.props.matches.matches.length === 0)) && <div className="row">
+							<div className="col s12 container">
+							<br />
+							<div className="card-panel center white-text">
+								<h3 className="grey-text text-darken-2">:(</h3>
+									<p className="grey-text text-darken-2">{this.props.matches.error}</p>
+									<button onClick={this.handleTryAgain} className="btn btn-flat textTransform white-text indigo darken-4">Try again</button>
+							</div>
+							</div>
+						</div>
+					}
 					</div>
 				</div>
-			}
 		</div>
 	}
 

@@ -22,14 +22,14 @@ export class Menu extends Component {
 
 	render() {
 		return <React.Fragment>
-			<div className="card-content indigo darken-4 ugFrontContentCard" onClick={this.handleMenuClick}>
+			<div className="card-content indigo darken-4 ugFrontContentCard hide-on-large-only" onClick={this.handleMenuClick}>
 				<span className="white-text">{this.props.title} 
 					<small className="right ugMenuBtn">
 						<strong>Menu <i className={`fas fa-angle-down ${this.state.showMenu ? "hide" : "show"}`}></i><i className={`fas fa-angle-up ${this.state.showMenu ? "show" : "hide"}`}></i></strong>
 					</small>
 				</span>
 			</div>
-			<div>
+			<div className="hide-on-large-only">
 			<table className={`ugMenuTable ${this.state.showMenu ? "show" : "hide"}`}>
 				<tbody>
 					<tr>

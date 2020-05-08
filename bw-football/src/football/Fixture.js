@@ -5,6 +5,7 @@ import {Preloader} from "./Preloader";
 import {Menu} from "./Menu";
 import {ResultsMenu} from "./ResultsMenu";
 import LeaguesData from "./LeaguesData";
+import {DesktopMenu} from "./DesktopMenu";
 
 export class Fixture extends Component {
 	constructor(props) {
@@ -116,16 +117,50 @@ export class Fixture extends Component {
 		}
 
 		return <div className="white">
-			<div className="card-panel white z-depth-0 ugHeader">
+			<div className="card-panel white z-depth-0 ugHeader hide-on-large-only">
 				<h5 className="grey-text text-darken-2">{title}</h5>
 			</div>
 			<Menu {...this.props} title="Fixtures" match={this.props.match} />
-			{
-				this.props.match && <ResultsMenu {...this.props} fixtures={true} handleTryAgain={this.handleTryAgain} lc={this.props.match.params.league} teams={this.props.teams} />
-			}
 
-			<div className="row">
+			<div className="hide-on-med-and-down container">
+				<br /><br />
+				<div className="card-panel white z-depth-0 ugHeader">
+					<h4 className="grey-text text-darken-2">{title}</h4>
+				</div>
+				<DesktopMenu {...this.props} title="Fixtures" match={this.props.match} />
+			</div>
+			<div className="container hide-on-med-and-down">
+				{
+					this.props.match && <ResultsMenu {...this.props} fixtures={true} handleTryAgain={this.handleTryAgain} lc={this.props.match.params.league} teams={this.props.teams} />
+				}
+			</div>
+			<div className="hide-on-large-only">
+				{
+					this.props.match && <ResultsMenu {...this.props} fixtures={true} handleTryAgain={this.handleTryAgain} lc={this.props.match.params.league} teams={this.props.teams} />
+				}
+			</div>
+
+			<div className="row hide-on-large-only">
 				<div className="col s12">
+					<ul className="fixturesMenuBtns">
+						<li>
+							<button onClick={this.handlePostponedSelect} className={`btn indigo darken-4 white-text ${(this.state.status === "POSTPONED") ? "disabled" : ""}`}>Postponed</button>
+						</li>
+						<li>
+							<button onClick={this.handleScheduledSelect} className={`btn indigo darken-4 white-text ${(this.state.status === "SCHEDULED") ? "disabled" : ""}`}>Sceduled</button>
+						</li>
+						<li className="right">
+							<button id="datepicker" className="btn datepicker white blue-text fixtueDatePicker z-depth-0">
+								{this.state.selectDateText}
+							</button>
+						</li>
+					</ul>
+					<p className="grey-text text-darken-2">Showing {this.state.status.toLowerCase()} matches for {this.state.selectDateText === "Select a date" ? "this month" : this.state.selectDateText}</p>
+				</div>
+			</div>
+
+			<div className="container hide-on-med-and-down">
+				<div className="">
 					<ul className="fixturesMenuBtns">
 						<li>
 							<button onClick={this.handlePostponedSelect} className={`btn indigo darken-4 white-text ${(this.state.status === "POSTPONED") ? "disabled" : ""}`}>Postponed</button>
@@ -145,47 +180,51 @@ export class Fixture extends Component {
 
 			{
 				(ru && (this.props.teams && !this.props.teams.error)) && ru.map(item => <div key={item.monthyear}>
-					<h5 className="center monthYearTitle">{item.monthyear}</h5>
-					<br />
-					{
-						item.xo.map(obj => <React.Fragment key={obj.dayMonth}>
-							<div className="center dayMonthDiv indigo darken-4 white-text ugFrontContentCard">
-								{obj.dayMonth}
-							</div>
-							<table className="scoreTable">
-								<tbody>
-							{
-								obj.xxo.map(match => {
-									let matchDate = "";
-									if (this.state.status === "SHEDULED") {
-										let d = new Date(match.utcDate);
-										let m = d.getMinutes();
-  										let h = d.getHours(); 
-  										matchDate = h + ":" + m;
-									}
-									return <tr key={match.id}>
-										<td className="first">{((this.props.teams && !this.props.teams.error) && this.props.teams.teams.find(item => item.id === match.homeTeam.id).shortName) || match.homeTeam.name}</td>
-										<td className="middle">
-											<span className={(this.state.status === "POSTPONED" || this.state.status === "SCHEDULED") ? "hide" : "show"}>
-												{match.score.fullTime.homeTeam} - {match.score.fullTime.awayTeam}
-											</span>
-											<span className={this.state.status === "POSTPONED" ? "show" : "hide"}>
-												p - p
-											</span>
-											<span className={`white grey-text text-darken-2 ${this.state.status === "SHEDULED" ? "show" : "hide"}`}>
-												{matchDate}
-											</span>
-										</td>
-										<td className="last">{((this.props.teams && !this.props.teams.error) && this.props.teams.teams.find(item => item.id === match.awayTeam.id).shortName) || match.awayTeam.name}</td>
-									</tr>
-								})
-							}
-								</tbody>
-							</table>
+					<div className="row">
+						<div className="col l8 offset-l2 s12">
+							<h5 className="center monthYearTitle">{item.monthyear}</h5>
 							<br />
-						</React.Fragment>)
-					}
-					<br /><br />
+							{
+								item.xo.map(obj => <React.Fragment key={obj.dayMonth}>
+									<div className="center dayMonthDiv indigo darken-4 white-text ugFrontContentCard">
+										{obj.dayMonth}
+									</div>
+									<table className="scoreTable">
+										<tbody>
+									{
+										obj.xxo.map(match => {
+											let matchDate = "";
+											if (this.state.status === "SHEDULED") {
+												let d = new Date(match.utcDate);
+												let m = d.getMinutes();
+		  										let h = d.getHours(); 
+		  										matchDate = h + ":" + m;
+											}
+											return <tr key={match.id}>
+												<td className="first">{((this.props.teams && !this.props.teams.error) && this.props.teams.teams.find(item => item.id === match.homeTeam.id).shortName) || match.homeTeam.name}</td>
+												<td className="middle">
+													<span className={(this.state.status === "POSTPONED" || this.state.status === "SCHEDULED") ? "hide" : "show"}>
+														{match.score.fullTime.homeTeam} - {match.score.fullTime.awayTeam}
+													</span>
+													<span className={this.state.status === "POSTPONED" ? "show" : "hide"}>
+														p - p
+													</span>
+													<span className={`white grey-text text-darken-2 ${this.state.status === "SHEDULED" ? "show" : "hide"}`}>
+														{matchDate}
+													</span>
+												</td>
+												<td className="last">{((this.props.teams && !this.props.teams.error) && this.props.teams.teams.find(item => item.id === match.awayTeam.id).shortName) || match.awayTeam.name}</td>
+											</tr>
+										})
+									}
+										</tbody>
+									</table>
+									<br />
+								</React.Fragment>)
+							}
+							<br /><br />
+						</div>
+					</div>
 				</div>)
 			}
 
@@ -200,7 +239,7 @@ export class Fixture extends Component {
 
 			{
 				(this.props.matches && this.props.matches.error) && <div className="row">
-					<div className="col s12 container">
+					<div className="col l6 offset-l3 s12 container">
 					<br />
 					<div className="card-panel center white-text">
 						<h3 className="grey-text text-darken-2">:(</h3>
@@ -213,7 +252,7 @@ export class Fixture extends Component {
 
 			{
 				(this.props.matches && !this.props.matches.error && this.props.matches.matches.length === 0) && <div className="row">
-					<div className="col s12 container">
+					<div className="col l6 offset-l3 s12 container">
 					<br />
 					<div className="card-panel center white-text">
 						<h3 className="grey-text text-darken-2">:(</h3>
